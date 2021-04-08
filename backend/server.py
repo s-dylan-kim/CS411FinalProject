@@ -1,6 +1,16 @@
-from flask import Flask
+from flask import Flask, request
 app = Flask(__name__)
 
-@app.route('/')
+def fun1():
+    print("hi")
+
+@app.route('/updateDatabase', methods=['GET'])
 def hello_world():
-    return 'Hello, World!'
+    arg2 = request.args.get('cow')
+    fun1()
+    return str(arg2)
+
+
+@app.route('/delete', methods=['GET'])
+def delete():
+    return '<p>hello world</p>'
