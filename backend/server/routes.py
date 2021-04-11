@@ -16,15 +16,6 @@ def update_route():
     data = db.fetch_data()
     return render_template("index.html", data = data)
 
-@app.route('/')
-def main():
-    return jsonify([1,2,3,4, {"test": "hi"}])
-    # data = db.fetch_data()
-    # return render_template("index.html", data = data)
-
-
-def fun1():
-    print("hi")
 
 @app.route('/updateDatabase', methods=['GET'])
 def hello_world():
@@ -35,7 +26,9 @@ def hello_world():
 @app.route('/getTableData', methods=['GET'])
 def getTableData():
     table = request.args.get('table')
-    return jsonify(dbase.get_table_data(table))
+    result = dbase.get_table_data(table)
+    results = [dict(row) for row in result] 
+    return jsonify({'results': results})
 
 @app.route('/delete', methods=['GET'])
 def delete():
