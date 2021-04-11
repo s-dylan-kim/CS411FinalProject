@@ -1,4 +1,5 @@
-import random
+from server import db
+# import random
 
 def get_name():
     return random.choice(["bro","dude","yo"])
@@ -40,6 +41,15 @@ def insert(data, us, loc, rev, rat):
             "rating": rat
             }
     data.append(item)
+
+def get_table_data(table):
+    """ gets all of the data in 'table' """
+    conn = db.connect()
+    query = 'SELECT * FROM ' + str(table) + ';'
+    query_results = conn.execute(query)
+    query_results = [entry for entry in query_results]
+    conn.close()
+    return query_results
 
 def delete(table, id: int) -> None:
     """ removes from 'table' the entry that matches with 'id' """
