@@ -27,7 +27,8 @@ def hello_world():
     fun1()
     return str(arg2)
 
-
 @app.route('/delete', methods=['GET'])
 def delete():
-    return '<p>hello world</p>'
+    table = request.args.get('table')
+    id = request.args.get('id')
+    db.delete(table, int(id))

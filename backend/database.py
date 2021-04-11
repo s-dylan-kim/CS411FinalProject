@@ -40,3 +40,10 @@ def insert(data, us, loc, rev, rat):
             "rating": rat
             }
     data.append(item)
+
+def delete(table, id: int) -> None:
+    """ removes from 'table' the entry that matches with 'id' """
+    conn = db.connect()
+    query = 'DELETE FROM ' + str(table) + ' WHERE id={};'.format(id)
+    conn.execute(query)
+    conn.close()
