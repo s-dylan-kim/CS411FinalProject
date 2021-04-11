@@ -20,7 +20,6 @@ function App() {
 
   return (
     <div className="App">
-      Hi
       <Form.Control
         as="select"
         custom
@@ -42,7 +41,11 @@ function App() {
             ))
           }
         </thead>
-        
+        <tbody>
+          {
+            
+          }
+        </tbody>
       </Table>
 
 
