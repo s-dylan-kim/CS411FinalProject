@@ -1,5 +1,13 @@
+from flask import request, jsonify
+from server import app
 from server import db
+
 # import database as db
+
+# @app.route('/')
+# def test:
+#     print("hello")
+
 
 # @app.route('/insert')
 # def insert_route():
@@ -11,10 +19,11 @@ from server import db
 #     data = db.fetch_data()
 #     return render_template("index.html", data = data)
 
-# @app.route('/')
-# def main():
-#     data = db.fetch_data()
-#     return render_template("index.html", data = data)
+@app.route('/')
+def main():
+    return "Hello"
+    # data = db.fetch_data()
+    # return render_template("index.html", data = data)
 
 
 # def fun1():
