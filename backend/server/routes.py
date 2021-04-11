@@ -50,7 +50,7 @@ def getTableData():
 
 @app.route('/getTableColumns', methods=['GET'])
 def getColumnsFromTable():
-    arg1 = str(request.args.get('tableName'))
+    arg1 = str(request.args.get('table'))
     conn = db.connect()
     query = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'covid_tracker' AND TABLE_NAME = '{}';".format(arg1)
     query_results = conn.execute(query)
@@ -71,8 +71,13 @@ def getTableNames():
     result_dict = {'results': results}
     return jsonify(result_dict)
 
-@app.route('/delete', methods=['GET'])
+@app.route('/delete', methods=['DELETE'])
 def delete():
-    table = request.args.get('table')
-    id = request.args.get('id')
-    dbase.delete(table, int(id))
+    data = request.get_json
+    table = data['table']
+    id = data['data']['id']
+    print(table)
+    print(id)
+    return "200"
+    # id = 
+    # dbase.delete(table, int(id))
