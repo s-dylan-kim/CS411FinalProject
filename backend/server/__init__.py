@@ -21,7 +21,7 @@ def init_connection_engine():
             variables = load(open("app.yaml"), Loader=Loader)
         except OSError as e:
             print("Make sure you have the app.yaml file setup")
-            os.exit()
+            os._exit(1)
 
         env_variables = variables['env_variables']
         for var in env_variables:
