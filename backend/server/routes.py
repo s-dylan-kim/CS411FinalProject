@@ -18,9 +18,9 @@ def update_route():
 
 @app.route('/')
 def main():
-    return "Hello"
-    data = db.fetch_data()
-    return render_template("index.html", data = data)
+    return jsonify([1,2,3,4, {"test": "hi"}])
+    # data = db.fetch_data()
+    # return render_template("index.html", data = data)
 
 
 def fun1():

@@ -1,23 +1,63 @@
-import logo from './logo.svg';
 import './App.css';
-
-
-
+import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useState, useEffect } from 'react';
+import { Form, Table } from "react-bootstrap"
 
 function App() {
+  const [tables, setTables] = useState(["test1", "test2", "test3"])
+  const [curTable, setCurTable] = useState("none")
+  const [columns, setColumns] = useState(["col1", "col2", "col3"])
+  const [data, setData] = useState(null)
+
+  useEffect(() => {
+
+  })
+
+  function handleChangeTable(event) {
+    setCurTable(event.target.value)
+    console.log(event.target.value)
+  }
+
   return (
     <div className="App">
-      <form>
+      Hi
+      <Form.Control
+        as="select"
+        custom
+        onChange={handleChangeTable}
+      >
+        {
+          tables.map((item, i) => (
+            <option value={item}>
+              {item}
+            </option>
+          ))
+        }
+      </Form.Control>
+      <Table striped bordered hover>
+        <thead>
+          {
+            columns.map((item, i) => (
+              <th>{item}</th>
+            ))
+          }
+        </thead>
+        
+      </Table>
+
+
+
+      {/* <form>
         <label>
           Field:
           <input type="text" name="field"/>
         </label>
-        {/* <label>
+        <label>
           Select Operation:
           <select value={}
-        </label> */}
+        </label>
         <input type="submit" value="submit"/>
-      </form>
+      </form> */}
     </div>
   );
 }
