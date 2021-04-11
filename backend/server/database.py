@@ -1,8 +1,6 @@
 from server import db
 # import random
 
-def get_name():
-    return random.choice(["bro","dude","yo"])
 
 def fetch_data() -> dict:
         data = [
@@ -51,9 +49,31 @@ def get_table_data(table):
     conn.close()
     return query_results
 
-def delete(table, id: int) -> None:
+def delete(table, id):
     """ removes from 'table' the entry that matches with 'id' """
     conn = db.connect()
     query = 'DELETE FROM ' + str(table) + ' WHERE id={};'.format(id)
     conn.execute(query)
     conn.close()
+
+def tableColumns(table):
+    """Reads all tasks listed in the todo table
+
+    Returns:
+        A list of dictionaries
+    """
+
+    conn = db.connect()
+    query_results = conn.execute("SHOW COLUMNS FROM Locations;")
+    conn.close()
+    todo_list = []
+    print(query_results)
+    # for result in query_results:
+    #     item = {
+    #         "id": result[0],
+    #         "task": result[1],
+    #         "status": result[2]
+    #     }
+    #     todo_list.append(item)
+
+    return query_results
