@@ -1,0 +1,9 @@
+<div id="test"></div>
+{{data[1]}}
+<script>
+    var x="";
+    for(var i=1; i < 3; i++){
+        x = x + "{{data["+1+"]}} <br>";
+    }
+    document.getElementById("test").innerHTML = x;
+</script>
