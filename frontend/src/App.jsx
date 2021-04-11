@@ -1,7 +1,8 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import React, { useState, useEffect } from 'react';
-import { Form, Table } from "react-bootstrap"
+import { Form, Table } from "react-bootstrap";
+import Axios from 'axios';
 
 function App() {
   const [tables, setTables] = useState(["test1", "test2", "test3"])
@@ -10,7 +11,7 @@ function App() {
   const [data, setData] = useState(null)
 
   useEffect(() => {
-
+    Axios.get('http://localhost:5000/')
   })
 
   function handleChangeTable(event) {
