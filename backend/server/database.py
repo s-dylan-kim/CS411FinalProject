@@ -1,10 +1,11 @@
-from server import db
 # import random
+import random
+from server import db
 
 def get_name():
     return random.choice(["bro","dude","yo"])
 
-def fetch_data() -> dict:
+def fetch_data():
         data = [
             {
                 "user": "Anonymous",
@@ -33,15 +34,6 @@ def update(data, entry_num, us, loc, rev, rat):
     data[entry_num]["review"] = rev
     data[entry_num]["rating"] = rat
 
-
-def insert(data, us, loc, rev, rat):
-    item = {"user": us,
-            "location": loc,
-            "review": rev,
-            "rating": rat
-            }
-    data.append(item)
-
 def get_table_data(table):
     """ gets all of the data in 'table' """
     conn = db.connect()
@@ -53,7 +45,25 @@ def get_table_data(table):
 
 def delete(table, id: int) -> None:
     """ removes from 'table' the entry that matches with 'id' """
+
+def insert_Locations(_id:int, name:str, longitude:int, latitude:int, category_id:int):
     conn = db.connect()
-    query = 'DELETE FROM ' + str(table) + ' WHERE id={};'.format(id)
-    conn.execute(query)
+    query1 = 'INSERT INTO Locations (id, name, longitude, latitude) VALUES ("{}", "{}", "{}", "{}")'.format(_id, name, longitude, latitude)
+    conn.execute(query1)
+    query2 = 'INSERT INTO LocationOfType (locationID, categoryID) VALUES ("{}", "{}")'.format(_id, category_id)
+    conn.execute(query2)
     conn.close()
+
+def insert_Categories(_id:int, name:str):
+    conn = db.connect()
+    query1 = 'INSERT INTO Categories (id, name) VALUES ("{}", "{}")'.format(_id, name)
+    conn.execute(query1)
+    conn.close()
+ 
+
+#def delete(table, id: int) -> None:
+#    """ removes from 'table' the entry that matches with 'id' """
+#    conn = db.connect()
+#    query = 'DELETE FROM ' + str(table) + ' WHERE id={};'.format(id)
+#    conn.execute(query)
+#    conn.close()

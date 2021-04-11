@@ -1,24 +1,37 @@
 from flask import request, jsonify
 from server import app
 from server import db
-
 from server import database as dbase
 
 
 
-@app.route('/insert')
-def insert_route():
-    data = db.fetch_data()
-    return render_template("index.html", data = data)
 
-@app.route('/update')
-def update_route():
-    data = db.fetch_data()
-    return render_template("index.html", data = data)
+@app.route('/insertLocations', methods=['GET'])
+def insert_Locations():
+    _id = request.args.get('_id')
+    name = request.args.get('name')
+    longitude = request.args.get('longitude')
+    latitude = request.args.get('latitude')
+    category_id = request.args.get('category_id')
+    dbase.insert_Locations(int(_id), name, longitude, latitude, category_id)
+    return "inserted " + name
+
+@app.route('/insertCategories', methods=['GET'])
+def insert_Categories():
+    _id = request.args.get('_id')
+    name = request.args.get('name')
+    dbase.insert_Categories(int(_id), name)
+    return "inserted " + name
+
+
+#@app.route('/update')
+#def update_route():
+#    data = db.fetch_data()
+#    return render_template("index.html", data = data)
 
 @app.route('/')
 def main():
-    return jsonify([1,2,3,4, {"test": "hi"}])
+    return "hello"
     # data = db.fetch_data()
     # return render_template("index.html", data = data)
 
