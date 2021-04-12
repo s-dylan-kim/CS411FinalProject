@@ -44,12 +44,13 @@ def get_table_data(table):
 def delete(table, id):
     """ removes from 'table' the entry that matches with 'id' """
 
-def insert_Locations(_id:int, name:str, longitude:int, latitude:int, category_id:int):
+def insert_Locations(_id:int, name:str, longitude:int, latitude:int):
+    # , category_id:int
     conn = db.connect()
     query1 = 'INSERT INTO Locations (id, name, longitude, latitude) VALUES ("{}", "{}", "{}", "{}")'.format(_id, name, longitude, latitude)
     conn.execute(query1)
-    query2 = 'INSERT INTO LocationOfType (locationID, categoryID) VALUES ("{}", "{}")'.format(_id, category_id)
-    conn.execute(query2)
+    # query2 = 'INSERT INTO LocationOfType (locationID, categoryID) VALUES ("{}", "{}")'.format(_id, category_id)
+    # conn.execute(query2)
     conn.close()
 
 def insert_Categories(_id:int, name:str):

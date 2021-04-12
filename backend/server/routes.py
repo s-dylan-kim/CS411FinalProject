@@ -5,20 +5,25 @@ from server import database as dbase
 
 
 
-@app.route('/insertLocations', methods=['GET'])
+@app.route('/insertLocations', methods=['POST'])
 def insert_Locations():
-    _id = request.args.get('_id')
-    name = request.args.get('name')
-    longitude = request.args.get('longitude')
-    latitude = request.args.get('latitude')
-    category_id = request.args.get('category_id')
-    dbase.insert_Locations(int(_id), name, longitude, latitude, category_id)
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    _id = data['id']
+    name = data['name']
+    longitude = data['longitude']
+    latitude = data['latitude']
+    # category_id = data['category_id']
+    dbase.insert_Locations(int(_id), name, longitude, latitude)
+    # , category_id
     return "inserted " + name
 
-@app.route('/insertCategories', methods=['GET'])
+@app.route('/insertCategories', methods=['POST'])
 def insert_Categories():
-    _id = request.args.get('_id')
-    name = request.args.get('name')
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    _id = data['id']
+    name = data['name']
     dbase.insert_Categories(int(_id), name)
     return "inserted " + name
 
@@ -73,11 +78,8 @@ def getTableNames():
 
 @app.route('/delete', methods=['DELETE'])
 def delete():
-    data = request.get_json
+    data = request.get_json()
     table = data['table']
     id = data['data']['id']
-    print(table)
-    print(id)
+    dbase.delete(table, int(id))
     return "200"
-    # id = 
-    # dbase.delete(table, int(id))

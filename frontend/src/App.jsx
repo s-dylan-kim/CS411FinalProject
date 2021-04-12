@@ -14,11 +14,24 @@ function App() {
   const [curDataPoint, setCurDataPoint] = useState([])
   const [curColumn, setCurColumn] = useState("")
   const [search, setSearch] = useState("")
+  const [formData, setFormData] = useState({})
 
-  const handleCloseInsert = () => setShowInsert(false);
-  const handleShowInsert = () => setShowInsert(true);
-  const handleCloseEditDelete = () => setShowEditDelete(false);
-  const handleShowEditDelete = () => setShowEditDelete(true);
+  const handleCloseInsert = () => {
+    setFormData({})
+    setShowInsert(false);
+  }
+  const handleShowInsert = () => {
+    setFormData({})
+    setShowInsert(true);
+  }
+  const handleCloseEditDelete = () => {
+    setFormData({})
+    setShowEditDelete(false);
+  }
+  const handleShowEditDelete = () => {
+    setFormData({})
+    setShowEditDelete(true);
+  }
 
   useEffect(() => {
     Axios.get('http://localhost:5000/getTableNames').then((response) => {
@@ -55,22 +68,40 @@ function App() {
     }
   }, [curColumn, curTable, search])
 
-  function handleChangeTable(event) {
+  const handleChangeTable = (event) => {
     setCurTable(event.target.value)
-    console.log(event.target.value)
   }
     
   const insertRow = (event) => {
     event.preventDefault();
+    console.log(formData)
+    Axios.post('http://localhost:5000/insert'+curTable, {
+      data: {
+        data: formData
+      }
+    }).then((response) => {
+      console.log("inserted row in " + curTable)
+    })
   }
 
-  function showEditDeleteModal(item) {
+  const updateRow = (event) => {
+    event.preventDefault();
+    console.log(formData)
+    Axios.post('http://localhost:5000/update'+curTable, {
+      data: {
+        data: formData
+      }
+    }).then((response) => {
+      console.log("updated row in " + curTable)
+    })
+  }
+
+  const showEditDeleteModal = (item) => {
     setCurDataPoint(item)
     handleShowEditDelete()
-    console.log(item)
   }
 
-  function deleteRow() {
+  const deleteRow = () => {
     Axios.delete('http://localhost:5000/delete', {
       data: {
         data: curDataPoint,
@@ -79,6 +110,15 @@ function App() {
     }).then((response) => {
       console.log("deleted row from " + curTable)
     })
+  }
+
+  const searchUpdate = (event) => {
+    setCurColumn(event.target.name)
+    setSearch(event.target.value)
+  }
+
+  const formUpdate = (event) => {
+    setFormData({...formData, [event.target.name]: event.target.value})
   }
 
     
@@ -108,6 +148,14 @@ function App() {
             }
             <th>Action</th>
           </tr>
+          <tr>
+            {
+              columns.map((item, i) => (
+                <th key={i}><Form.Control type="text" name={item} placeholder="search" onChange={searchUpdate}/></th>
+              ))
+            }
+            <th/>
+          </tr>
         </thead>
         <tbody>
           {
@@ -136,7 +184,7 @@ function App() {
               columns.map((item, i) => (
                 <Form.Group key={i} controlId={item}>
                   <Form.Label>{item}</Form.Label>
-                  <Form.Control type="text" placeholder={item}/>
+                  <Form.Control type="text" name={item} placeholder={curDataPoint[item]} onChange={formUpdate}/>
                 </Form.Group>
               ))
             }
@@ -152,12 +200,12 @@ function App() {
           <Modal.Title>Edit/Delete From {curTable}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form onSubmit={insertRow}>
+          <Form onSubmit={updateRow}>
             {
               columns.map((item, i) => (
                 <Form.Group key={i} controlId={item}>
                   <Form.Label>{item}</Form.Label>
-                  <Form.Control type="text" placeholder={curDataPoint[item]}/>
+                  <Form.Control type="text" name={item} placeholder={curDataPoint[item]} onChange={formUpdate}/>
                 </Form.Group>
               ))
             }
