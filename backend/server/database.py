@@ -93,6 +93,10 @@ def insert_Questions(_id:int, question:str, userId:int, locationId:int):
     conn.close()
  
 
+def update_UserVisited(id, userID, locationID, time, hasCOVID):
+    conn = db.connect()
+    query = "UPDATE UserVisited SET id = " + int(id) + ", userID = '" + str(userID) + "', locationID = '" + str(locationID) + "', time = '" + str(time) + "', hasCOVID = " + int(hasCOVID) + ";"
+
 def delete(table, id: int) -> None:
     """ removes from 'table' the entry that matches with 'id' """
     conn = db.connect()
