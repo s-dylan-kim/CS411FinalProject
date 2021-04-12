@@ -35,7 +35,7 @@ def update(data, entry_num, us, loc, rev, rat):
 def get_table_data(table):
     """ gets all of the data in 'table' """
     conn = db.connect()
-    query = 'SELECT * FROM ' + str(table) + ';'
+    query = 'SELECT * FROM ' + str(table) + ' LIMIT 1000;'
     query_results = conn.execute(query)
     query_results = [entry for entry in query_results]
     conn.close()
@@ -126,7 +126,7 @@ def search(table, column, keyword):
     """ Searches in 'table' where 'column' is like 'keyword' """
 
     conn = db.connect()
-    query = 'SELECT * FROM ' + str(table) + ' WHERE ' + str(column) + " LIKE '%%" + str(keyword) + "%%';"
+    query = 'SELECT * FROM ' + str(table) + ' WHERE ' + str(column) + " LIKE '%%" + str(keyword) + "%%' LIMIT 1000;"
     query_results = conn.execute(query)
     conn.close()
 
