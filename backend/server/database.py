@@ -92,11 +92,6 @@ def insert_Questions(_id:int, question:str, userId:int, locationId:int):
     conn.execute(query1)
     conn.close()
  
-
-def update_UserVisited(id, userID, locationID, time, hasCOVID):
-    conn = db.connect()
-    query = "UPDATE UserVisited SET id = " + int(id) + ", userID = '" + str(userID) + "', locationID = '" + str(locationID) + "', time = '" + str(time) + "', hasCOVID = " + int(hasCOVID) + ";"
-
 def delete(table, id: int) -> None:
     """ removes from 'table' the entry that matches with 'id' """
     conn = db.connect()
@@ -159,4 +154,28 @@ def update_LocationOfType(locationID:int, categoryID:int):
     conn = db.connect()
     query1 = 'UPDATE LocationOfType SET locationID = "{}", categoryID = "{}" WHERE locationID = "{}" and categoryID = "{}"'.format(locationID, categoryID, locationID, categoryID)
     conn.execute(query1)
+    conn.close()
+
+def update_Questions(id, question, userId, locationId):
+    conn = db.connect()
+    query = 'UPDATE Questions SET id = "{}", question = "{}", userId = "{}", locationId = "{}"'.format(int(id), str(question), int(userId), int(locationId))
+    conn.execute(query + ";")
+    conn.close()
+
+def update_Reviews(id, rating, userID, locationID, review):
+    conn = db.connect()
+    query = 'UPDATE Reviews SET id = "{}", rating = "{}", userID = "{}", locationID = "{}", review = "{}"'.format(int(id), int(rating), int(userID), int(locationID), str(review))
+    conn.execute(query + ";")
+    conn.close()
+
+def update_Users(id, name, hasCovid, CovidStartDate, username, password):
+    conn = db.connect()
+    query = 'UPDATE Users SET id = "{}", name = "{}", hasCovid = "{}", CovidStartDate = "{}", username = "{}", password = "{}"'.format(int(id), str(name), int(hasCovid), str(CovidStartDate), str(username), str(password))
+    conn.execute(query + ";")
+    conn.close()
+
+def update_UserVisited(id, userID, locationID, time, hasCOVID):
+    conn = db.connect()
+    query = 'UPDATE UserVisited SET id = "{}", userID = "{}", locationID = "{}", time = "{}", hasCOVID = "{}"'.format(int(id), int(userID), int(locationID), str(time), int(hasCOVID))
+    conn.execute(query + ";")
     conn.close()
