@@ -168,9 +168,9 @@ def update_Reviews(id, rating, userID, locationID, review):
     conn.execute(query + ";")
     conn.close()
 
-def update_Users(id, name, hasCovid, CovidStartDate, username, password):
+def update_Users(id, name, hasCovid, username, password):
     conn = db.connect()
-    query = 'UPDATE Users SET id = "{}", name = "{}", hasCovid = "{}", CovidStartDate = "{}", username = "{}", password = "{}"'.format(int(id), str(name), int(hasCovid), str(CovidStartDate), str(username), str(password))
+    query = 'UPDATE Users SET id = "{}", name = "{}", hasCovid = "{}", username = "{}", password = "{}"'.format(int(id), str(name), int(hasCovid), str(username), str(password))
     conn.execute(query + ";")
     conn.close()
 

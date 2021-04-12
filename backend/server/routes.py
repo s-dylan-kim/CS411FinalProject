@@ -128,10 +128,9 @@ def updateUsers():
     id = data['id']
     name = data['name']
     hasCovid = data['hasCovid']
-    CovidStartDate = data['CovidStartDate']
     username = data['username']
     password = data['password']
-    dbase.update_Users(id, name, hasCovid, CovidStartDate, username, password)
+    dbase.update_Users(id, name, hasCovid, username, password)
     return "update Users"
 
 @app.route('/updateUserVisited', methods=['POST'])
