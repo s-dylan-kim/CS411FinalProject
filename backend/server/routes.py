@@ -13,9 +13,7 @@ def insert_Locations():
     name = data['name']
     longitude = data['longitude']
     latitude = data['latitude']
-    # category_id = data['category_id']
     dbase.insert_Locations(int(_id), name, longitude, latitude)
-    # , category_id
     return "inserted " + name
 
 @app.route('/insertCategories', methods=['POST'])
@@ -26,6 +24,74 @@ def insert_Categories():
     name = data['name']
     dbase.insert_Categories(int(_id), name)
     return "inserted " + name
+
+@app.route('/insertUser', methods=['POST'])
+def insert_User():
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    _id = data['id']
+    name = data['name']
+    CovidStartDate = data['CovidStartDate']
+    start = data['start']
+    username = data['username']
+    password = data['password']
+    dbase.insert_User(int(_id), name, CovidStartDate, start, username, password)
+    return "inserted " + name
+
+@app.route('/insertUserVisited', methods=['POST'])
+def insert_UserVisited():
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    _id = data['id']
+    userID = data['userID']
+    locationID = data['locationID']
+    time = data['time']
+    hasCOVID = data['hasCOVID']
+    dbase.insert_UserVisited(int(_id), userID, locationID, time, hasCOVID)
+    return "inserted user visited"
+
+@app.route('/insertReviews', methods=['POST'])
+def insert_Reviews():
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    _id = data['id']
+    rating = data['rating']
+    userID = data['userID']
+    locationID = data['locationID']
+    review = data['review']
+    dbase.insert_Reviews(int(_id), rating, userID, locationID, review)
+    return "inserted review"
+
+@app.route('/insertAnswers', methods=['POST'])
+def insert_Answers():
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    _id = data['id']
+    answer = data['answer']
+    questionID = data['questionID']
+    userID = data['userID']
+    dbase.insert_Answers(int(_id), answer, questionID, userID)
+    return "inserted answer"
+
+@app.route('/insertLocationOfType', methods=['POST'])
+def insert_LocationOfType():
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    locationID = data['locationID']
+    categoryID = data['categoryID']
+    dbase.insert_LocationOfType(int(locationID), categoryID)
+    return "inserted location type"
+
+@app.route('/insertQuestions', methods=['POST'])
+def insert_Questions():
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    _id = data['id']
+    question = data['question']
+    userId = data['userId']
+    locationId = data['locationId']
+    dbase.insert_Questions(int(_id), question, userId, locationId)
+    return "inserted question"
 
 
 #@app.route('/update')
