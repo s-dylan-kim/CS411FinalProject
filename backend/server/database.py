@@ -3,28 +3,28 @@ import random
 from server import db
 
 
-def fetch_data():
-        data = [
-            {
-                "user": "Anonymous",
-                "location": "Panda Express",
-                "review": "Tastes good",
-                "rating": 9
-            },
-            {
-                "user": "Anonymous",
-                "location": "Taco Bell",
-                "review": "feelsbadman",
-                "rating": 3
-            },
-            {
-                "user": "Anonymous",
-                "location": "McDonald's",
-                "review": "Cheap",
-                "rating": 5
-            }
-        ]
-        return data
+# def fetch_data():
+#         data = [
+#             {
+#                 "user": "Anonymous",
+#                 "location": "Panda Express",
+#                 "review": "Tastes good",
+#                 "rating": 9
+#             },
+#             {
+#                 "user": "Anonymous",
+#                 "location": "Taco Bell",
+#                 "review": "feelsbadman",
+#                 "rating": 3
+#             },
+#             {
+#                 "user": "Anonymous",
+#                 "location": "McDonald's",
+#                 "review": "Cheap",
+#                 "rating": 5
+#             }
+#         ]
+#         return data
 
 def update(data, entry_num, us, loc, rev, rat):
     data[entry_num]["user"] = us
@@ -41,8 +41,8 @@ def get_table_data(table):
     conn.close()
     return query_results
 
-def delete(table, id):
-    """ removes from 'table' the entry that matches with 'id' """
+# def delete(table, id):
+#     """ removes from 'table' the entry that matches with 'id' """
 
 def insert_Locations(_id:int, name:str, longitude:int, latitude:int):
     conn = db.connect()
@@ -93,12 +93,14 @@ def insert_Questions(_id:int, question:str, userId:int, locationId:int):
     conn.close()
  
 
-#def delete(table, id: int) -> None:
-#    """ removes from 'table' the entry that matches with 'id' """
-#    conn = db.connect()
-#    query = 'DELETE FROM ' + str(table) + ' WHERE id={};'.format(id)
-#    conn.execute(query)
-#    conn.close()
+def delete(table, id: int) -> None:
+    """ removes from 'table' the entry that matches with 'id' """
+    conn = db.connect()
+    query = 'DELETE FROM ' + str(table) + ' WHERE id={};'.format(int(id))
+    conn.execute(query)
+    conn.close()
+
+
 def tableColumns(table):
     """Reads all tasks listed in the todo table
 
@@ -118,5 +120,15 @@ def tableColumns(table):
     #         "status": result[2]
     #     }
     #     todo_list.append(item)
+
+    return query_results
+
+def search(table, column, keyword):
+    """ Searches in 'table' where 'column' is like 'keyword' """
+
+    conn = db.connect()
+    query = 'SELECT * FROM ' + str(table) + ' WHERE ' + str(column) + " LIKE '%" + str(keyword) + "%';"
+    query_results = conn.execute(query)
+    conn.close()
 
     return query_results
