@@ -134,19 +134,19 @@ def search(table, column, keyword):
 
 def update_Locations(_id:int, name:str, longitude:int, latitude:int):
     conn = db.connect()
-    query1 = 'UPDATE Locations SET id = "{}", name = "{}", longitude = "{}", latitude = "{}" WHERE id = "{}"'.format(_id, name, longitude, latitude, _id)
+    query1 = 'UPDATE Locations SET name = "{}", longitude = "{}", latitude = "{}" WHERE id = "{}"'.format(_id, name, longitude, latitude, _id)
     conn.execute(query1)
     conn.close()
 
 def update_Categories(_id:int, name:str):
     conn = db.connect()
-    query1 = 'UPDATE Categories SET id = "{}", name = "{}" WHERE id = "{}"'.format(_id, name, _id)
+    query1 = 'UPDATE Categories SET name = "{}" WHERE id = "{}"'.format(_id, name, _id)
     conn.execute(query1)
     conn.close()
 
 def update_Answers(_id:int, answer:str, questionID:int, userID:int):
     conn = db.connect()
-    query1 = 'UPDATE Answers SET id = "{}", answer = "{}", questionID = "{}", userID = "{}" WHERE id = "{}"'.format(_id, answer, questionID, userID, _id)
+    query1 = 'UPDATE Answers SET answer = "{}", questionID = "{}", userID = "{}" WHERE id = "{}"'.format(_id, answer, questionID, userID, _id)
     conn.execute(query1)
     conn.close()
 
@@ -158,24 +158,24 @@ def update_LocationOfType(locationID:int, categoryID:int):
 
 def update_Questions(id, question, userId, locationId):
     conn = db.connect()
-    query = 'UPDATE Questions SET id = "{}", question = "{}", userId = "{}", locationId = "{}" WHERE id = "{}"'.format(int(id), str(question), int(userId), int(locationId), int(id))
+    query = 'UPDATE Questions SET question = "{}", userId = "{}", locationId = "{}" WHERE id = "{}"'.format(int(id), str(question), int(userId), int(locationId), int(id))
     conn.execute(query)
     conn.close()
 
 def update_Reviews(id, rating, userID, locationID, review):
     conn = db.connect()
-    query = 'UPDATE Reviews SET id = "{}", rating = "{}", userID = "{}", locationID = "{}", review = "{}" WHERE id = "{}"'.format(int(id), int(rating), int(userID), int(locationID), str(review),int(id))
+    query = 'UPDATE Reviews SET rating = "{}", userID = "{}", locationID = "{}", review = "{}" WHERE id = "{}"'.format(int(id), int(rating), int(userID), int(locationID), str(review),int(id))
     conn.execute(query)
     conn.close()
 
 def update_Users(id, name, hasCovid, username, password):
     conn = db.connect()
-    query = 'UPDATE Users SET id = "{}", name = "{}", hasCovid = "{}", username = "{}", password = "{}" WHERE id = "{}"'.format(int(id), str(name), int(hasCovid), str(username), str(password), int(id))
+    query = 'UPDATE Users SET name = "{}", hasCovid = "{}", username = "{}", password = "{}" WHERE id = "{}"'.format(int(id), str(name), int(hasCovid), str(username), str(password), int(id))
     conn.execute(query)
     conn.close()
 
 def update_UserVisited(id, userID, locationID, time, hasCOVID):
     conn = db.connect()
-    query = 'UPDATE UserVisited SET id = "{}", userID = "{}", locationID = "{}", time = "{}", hasCOVID = "{}" WHERE id = "{}"'.format(int(id), int(userID), int(locationID), str(time), int(hasCOVID), int(id))
+    query = 'UPDATE UserVisited SET userID = "{}", locationID = "{}", time = "{}", hasCOVID = "{}" WHERE id = "{}"'.format(int(id), int(userID), int(locationID), str(time), int(hasCOVID), int(id))
     conn.execute(query)
     conn.close()
