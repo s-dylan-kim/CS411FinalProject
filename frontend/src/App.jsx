@@ -16,6 +16,8 @@ function App() {
   const [search, setSearch] = useState("")
   const [formData, setFormData] = useState({})
 
+  const advancedQueries = ['locationCategory', 'locationsPositive', 'restaurantRatings', 'restaurantHoursVisited']
+
   const handleCloseInsert = () => {
     setFormData({})
     setShowInsert(false);
@@ -53,9 +55,6 @@ function App() {
         console.log("fetched column data from " + curTable)
       })
     } 
-    // else {
-
-    // }
   }, [curTable])
 
   useEffect(() => {
@@ -67,26 +66,38 @@ function App() {
   }
 
   const updateData = () => {
-    if(curColumn == "") {
-      Axios.get('http://localhost:5000/getTableData', {
-        params: {
-          table: curTable
-        }
-      }).then((response) => {
-        setData(response.data.results)
-        console.log("fetched table data from " + curTable)
-      })
+    if(tables.includes(curTable)) {
+      if(curColumn == "") {
+        Axios.get('http://localhost:5000/getTableData', {
+          params: {
+            table: curTable
+          }
+        }).then((response) => {
+          setData(response.data.results)
+          console.log("fetched table data from " + curTable)
+        })
+      } else {
+        //put search request here
+        Axios.get('http://localhost:5000/search', {
+          params: {
+            table: curTable,
+            column: curColumn,
+            keyword: search
+          }
+        }).then((response) => {
+          setData(response.data.results)
+          console.log("fetched search table data from " + curTable)
+        })
+      }
     } else {
-      //put search request here
-      Axios.get('http://localhost:5000/search', {
-        params: {
-          table: curTable,
-          column: curColumn,
-          keyword: search
-        }
-      }).then((response) => {
-        setData(response.data.results)
-        console.log("fetched search table data from " + curTable)
+      setSearch("")
+      Axios.get('http://localhost:5000/' + curTable).then((response) => {
+        var queryData = response.data.results
+        var queryCols = []
+        Object.keys(queryData[0]).map(key => queryCols.push(key))
+        setColumns(queryCols)
+        setData(queryData)
+        console.log("fetched advanced query data for " + curTable)
       })
     }
   }
@@ -155,6 +166,13 @@ function App() {
       >
         {
           tables.map((item, i) => (
+            <option key={i} value={item}>
+              {item}
+            </option>
+          ))
+        }
+        {
+          advancedQueries.map((item,i) => (
             <option key={i} value={item}>
               {item}
             </option>
