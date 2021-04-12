@@ -158,24 +158,24 @@ def update_LocationOfType(locationID:int, categoryID:int):
 
 def update_Questions(id, question, userId, locationId):
     conn = db.connect()
-    query = 'UPDATE Questions SET id = "{}", question = "{}", userId = "{}", locationId = "{}"'.format(int(id), str(question), int(userId), int(locationId))
-    conn.execute(query + ";")
+    query = 'UPDATE Questions SET id = "{}", question = "{}", userId = "{}", locationId = "{}" WHERE id = "{}"'.format(int(id), str(question), int(userId), int(locationId), int(id))
+    conn.execute(query)
     conn.close()
 
 def update_Reviews(id, rating, userID, locationID, review):
     conn = db.connect()
-    query = 'UPDATE Reviews SET id = "{}", rating = "{}", userID = "{}", locationID = "{}", review = "{}"'.format(int(id), int(rating), int(userID), int(locationID), str(review))
-    conn.execute(query + ";")
+    query = 'UPDATE Reviews SET id = "{}", rating = "{}", userID = "{}", locationID = "{}", review = "{}" WHERE id = "{}"'.format(int(id), int(rating), int(userID), int(locationID), str(review),int(id))
+    conn.execute(query)
     conn.close()
 
 def update_Users(id, name, hasCovid, username, password):
     conn = db.connect()
-    query = 'UPDATE Users SET id = "{}", name = "{}", hasCovid = "{}", username = "{}", password = "{}"'.format(int(id), str(name), int(hasCovid), str(username), str(password))
-    conn.execute(query + ";")
+    query = 'UPDATE Users SET id = "{}", name = "{}", hasCovid = "{}", username = "{}", password = "{}" WHERE id = "{}"'.format(int(id), str(name), int(hasCovid), str(username), str(password), int(id))
+    conn.execute(query)
     conn.close()
 
 def update_UserVisited(id, userID, locationID, time, hasCOVID):
     conn = db.connect()
-    query = 'UPDATE UserVisited SET id = "{}", userID = "{}", locationID = "{}", time = "{}", hasCOVID = "{}"'.format(int(id), int(userID), int(locationID), str(time), int(hasCOVID))
-    conn.execute(query + ";")
+    query = 'UPDATE UserVisited SET id = "{}", userID = "{}", locationID = "{}", time = "{}", hasCOVID = "{}" WHERE id = "{}"'.format(int(id), int(userID), int(locationID), str(time), int(hasCOVID), int(id))
+    conn.execute(query)
     conn.close()

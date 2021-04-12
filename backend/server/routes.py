@@ -102,30 +102,30 @@ def insert_Questions():
 def updateQuestions():
     dataJSON = request.get_json()
     data = dataJSON['data']['data']
-    id = data['id']
+    _id = data['id']
     question = data['question']
     userId = data['userId']
     locationId = data['locationId']
-    dbase.update_Questions(id, question, userId, locationId)
+    dbase.update_Questions(int(_id), question, userId, locationId)
     return "update Questions"
 
 @app.route('/updateReviews', methods=['POST'])
 def updateReviews():
     dataJSON = request.get_json()
     data = dataJSON['data']['data']
-    id = data['id']
+    _id = data['id']
     rating = data['rating']
     userID = data['userID']
     locationID = data['locationID']
     review = data['review']
-    dbase.update_Reviews(id, rating, userID, locationID, review)
+    dbase.update_Reviews(int(_id), rating, userID, locationID, review)
     return "update Reviews"
 
 @app.route('/updateUsers', methods=['POST'])
 def updateUsers():
     dataJSON = request.get_json()
     data = dataJSON['data']['data']
-    id = data['id']
+    _id = data['id']
     name = data['name']
     hasCovid = data['hasCovid']
     username = data['username']
@@ -138,12 +138,12 @@ def updateUserVisited():
     dataJSON = request.get_json()
     data = dataJSON['data']['data']
     
-    id = data['id']
+    _id = data['id']
     userID = data['userID']
     locationID = data['locationID']
     time = data['time']
     hasCOVID = data['hasCOVID']
-    dbase.update_UserVisited(id, userID, locationID, time, hasCOVID)
+    dbase.update_UserVisited(int(_id), userID, locationID, time, hasCOVID)
     return "updated UserVisited"
 
 @app.route('/getTableData', methods=['GET'])
