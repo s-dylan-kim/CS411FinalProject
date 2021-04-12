@@ -94,3 +94,47 @@ def search():
     results = [dict(row) for row in query_results]
     result_dict = {'results': results}
     return jsonify(result_dict)
+
+@app.route('/locationCategory', methods=['GET'])
+def locationCategory():
+    conn = db.connect()
+    query = "SELECT Categories.name AS category_name, Locations.name AS location_name FROM LocationOfType JOIN Categories ON LocationOfType.categoryID = Categories.id JOIN Locations ON LocationOfType.locationID = Locations.id GROUP BY Categories.name, Locations.name ORDER BY Categories.name;"
+    query_results = conn.execute(query)
+    conn.close()
+
+    results = [dict(row) for row in query_results]
+    result_dict = {'results': results}
+    return jsonify(result_dict)
+
+@app.route('/locationsPositive', methods=['GET'])
+def locationsPositive():
+    conn = db.connect()
+    query = "SELECT DISTINCT L.name, count(distinct U.id) as NumberVisited FROM Users U JOIN UserVisited UV ON U.id = UV.userID JOIN Locations L ON UV.locationID = L.id WHERE U.hasCovid = 1 GROUP BY L.name;"
+    query_results = conn.execute(query)
+    conn.close()
+
+    results = [dict(row) for row in query_results]
+    result_dict = {'results': results}
+    return jsonify(result_dict)
+
+@app.route('/restaurantRatings', methods=['GET'])
+def restaurantRatings():
+    conn = db.connect()
+    query = "SELECT DISTINCT l.name, AVG(r.rating) as avg_rating FROM Reviews r JOIN Locations l ON r.locationID = l.id WHERE l.name = ANY (SELECT l.name FROM Locations l JOIN LocationOfType t on l.id = t.locationID JOIN Categories c ON t.categoryID = c.id WHERE c.name = 'Restaurant') GROUP BY l.name ORDER BY avg_rating DESC;"
+    query_results = conn.execute(query)
+    conn.close()
+
+    results = [dict(row) for row in query_results]
+    result_dict = {'results': results}
+    return jsonify(result_dict)
+
+@app.route('/restaurantHoursVisited', methods=['GET'])
+def restaurantHoursVisited():
+    conn = db.connect()
+    query = "SELECT hour(time) as hourVisited, sum(hasCovid=1) as CovidCount, sum(hasCovid=0) as nonCovidCount FROM UserVisited WHERE locationID in (SELECT locationID FROM LocationOfType WHERE categoryID = 1) GROUP BY hour(time) ORDER BY hourVisited;"
+    query_results = conn.execute(query)
+    conn.close()
+
+    results = [dict(row) for row in query_results]
+    result_dict = {'results': results}
+    return jsonify(result_dict)
