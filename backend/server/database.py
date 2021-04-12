@@ -112,7 +112,7 @@ def tableColumns(table):
     query_results = conn.execute("SHOW COLUMNS FROM Locations;")
     conn.close()
     #todo_list = []
-    print(query_results)
+    # print(query_results)
     # for result in query_results:
     #     item = {
     #         "id": result[0],
@@ -127,7 +127,7 @@ def search(table, column, keyword):
     """ Searches in 'table' where 'column' is like 'keyword' """
 
     conn = db.connect()
-    query = 'SELECT * FROM ' + str(table) + ' WHERE ' + str(column) + " LIKE '%" + str(keyword) + "%';"
+    query = 'SELECT * FROM ' + str(table) + ' WHERE ' + str(column) + " LIKE '%%" + str(keyword) + "%%';"
     query_results = conn.execute(query)
     conn.close()
 

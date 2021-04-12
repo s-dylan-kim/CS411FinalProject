@@ -16,6 +16,8 @@ function App() {
   const [search, setSearch] = useState("")
   const [formData, setFormData] = useState({})
 
+  const advancedQueries = ['locationCategory', 'locationsPositive', 'restaurantRatings', 'restaurantHoursVisited']
+
   const handleCloseInsert = () => {
     setFormData({})
     setShowInsert(false);
@@ -42,57 +44,87 @@ function App() {
   }, [])
 
   useEffect(() => {
-
-    Axios.get('http://localhost:5000/getTableColumns', {
-      params: {
-        table: curTable
-      }
-    }).then((response) => {
-      setColumns(response.data.results.map(x => x.COLUMN_NAME))
-      console.log("fetched column data from " + curTable)
-    })
-  }, [curTable])
-
-  useEffect(() => {
-    if(curColumn == "") {
-      Axios.get('http://localhost:5000/getTableData', {
+    if(tables.includes(curTable)) {
+      setSearch("")
+      Axios.get('http://localhost:5000/getTableColumns', {
         params: {
           table: curTable
         }
       }).then((response) => {
-        setData(response.data.results)
-        console.log("fetched table data from " + curTable)
+        setColumns(response.data.results.map(x => x.COLUMN_NAME))
+        console.log("fetched column data from " + curTable)
       })
-    } else {
-      //put search request here
-    }
+    } 
+  }, [curTable])
+
+  useEffect(() => {
+    updateData()
   }, [curColumn, curTable, search])
 
   const handleChangeTable = (event) => {
     setCurTable(event.target.value)
   }
+
+  const updateData = () => {
+    if(tables.includes(curTable)) {
+      if(curColumn == "") {
+        Axios.get('http://localhost:5000/getTableData', {
+          params: {
+            table: curTable
+          }
+        }).then((response) => {
+          setData(response.data.results)
+          console.log("fetched table data from " + curTable)
+        })
+      } else {
+        //put search request here
+        Axios.get('http://localhost:5000/search', {
+          params: {
+            table: curTable,
+            column: curColumn,
+            keyword: search
+          }
+        }).then((response) => {
+          setData(response.data.results)
+          console.log("fetched search table data from " + curTable)
+        })
+      }
+    } else {
+      setSearch("")
+      Axios.get('http://localhost:5000/' + curTable).then((response) => {
+        var queryData = response.data.results
+        var queryCols = []
+        Object.keys(queryData[0]).map(key => queryCols.push(key))
+        setColumns(queryCols)
+        setData(queryData)
+        console.log("fetched advanced query data for " + curTable)
+      })
+    }
+  }
     
   const insertRow = (event) => {
+    handleCloseInsert();
     event.preventDefault();
-    console.log(formData)
     Axios.post('http://localhost:5000/insert'+curTable, {
       data: {
         data: formData
       }
     }).then((response) => {
       console.log("inserted row in " + curTable)
+      updateData()
     })
   }
 
   const updateRow = (event) => {
+    handleCloseEditDelete();
     event.preventDefault();
-    console.log(formData)
     Axios.post('http://localhost:5000/update'+curTable, {
       data: {
         data: formData
       }
     }).then((response) => {
       console.log("updated row in " + curTable)
+      updateData()
     })
   }
 
@@ -102,6 +134,7 @@ function App() {
   }
 
   const deleteRow = () => {
+    handleCloseEditDelete();
     Axios.delete('http://localhost:5000/delete', {
       data: {
         data: curDataPoint,
@@ -109,6 +142,7 @@ function App() {
       }
     }).then((response) => {
       console.log("deleted row from " + curTable)
+      updateData()
     })
   }
 
@@ -132,6 +166,13 @@ function App() {
       >
         {
           tables.map((item, i) => (
+            <option key={i} value={item}>
+              {item}
+            </option>
+          ))
+        }
+        {
+          advancedQueries.map((item,i) => (
             <option key={i} value={item}>
               {item}
             </option>

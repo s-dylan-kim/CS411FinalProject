@@ -99,6 +99,54 @@ def insert_Questions():
 #    data = db.fetch_data()
 #    return render_template("index.html", data = data)
 
+@app.route('updateQuestions', methods=['PATCH'])
+def updateQuestions():
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    id = data['id']
+    question = data['question']
+    userId = data['userId']
+    locationId = data['locationId']
+    dbase.update_Questions(id, question, userId, locationId)
+    return "update Questions"
+
+@app.route('updateReviews', methods=['PATCH'])
+def updateReviews():
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    id = data['id']
+    rating = data['rating']
+    userID = data['userID']
+    locationID = data['locationID']
+    review = data['review']
+    dbase.update_Reviews(id, rating, userID, locationID, review)
+    return "update Reviews"
+
+@app.route('updateUsers', methods=['PATCH'])
+def updateUsers():
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    id = data['id']
+    name = data['name']
+    hasCovid = data['hasCovid']
+    CovidStartDate = data['CovidStartDate']
+    username = data['username']
+    password = data['password']
+    dbase.update_Users(id, name, hasCovid, CovidStartDate, username, password)
+    return "update Users"
+
+@app.route('updateUserVisited', methods=['PATCH'])
+def updateUserVisited():
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    
+    id = data['id']
+    userID = data['userID']
+    locationID = data['locationID']
+    time = data['time']
+    hasCOVID = data['hasCOVID']
+    dbase.update_UserVisited(id, userID, locationID, time, hasCOVID)
+    return "updated UserVisited"
 
 @app.route('/getTableData', methods=['GET'])
 def getTableData():
@@ -152,10 +200,9 @@ def delete():
 
 @app.route('/search', methods=['GET'])
 def search():
-    data = request.get_json()
-    table = data['table']
-    column = data['column']
-    keyword = data['keyword']
+    table = request.args.get('table')
+    column = request.args.get('column')
+    keyword = request.args.get('keyword')
     query_results = dbase.search(table, column, keyword)
     results = [dict(row) for row in query_results]
     result_dict = {'results': results}
@@ -200,3 +247,46 @@ def update_LocationOfType():
     categoryID = data['categoryID']
     dbase.update_LocationOfType(int(locationID), categoryID)
     return "updated location type"
+@app.route('/locationCategory', methods=['GET'])
+def locationCategory():
+    conn = db.connect()
+    query = "SELECT Categories.name AS category_name, Locations.name AS location_name FROM LocationOfType JOIN Categories ON LocationOfType.categoryID = Categories.id JOIN Locations ON LocationOfType.locationID = Locations.id GROUP BY Categories.name, Locations.name ORDER BY Categories.name;"
+    query_results = conn.execute(query)
+    conn.close()
+
+    results = [dict(row) for row in query_results]
+    result_dict = {'results': results}
+    return jsonify(result_dict)
+
+@app.route('/locationsPositive', methods=['GET'])
+def locationsPositive():
+    conn = db.connect()
+    query = "SELECT DISTINCT L.name, count(distinct U.id) as NumberVisited FROM Users U JOIN UserVisited UV ON U.id = UV.userID JOIN Locations L ON UV.locationID = L.id WHERE U.hasCovid = 1 GROUP BY L.name;"
+    query_results = conn.execute(query)
+    conn.close()
+
+    results = [dict(row) for row in query_results]
+    result_dict = {'results': results}
+    return jsonify(result_dict)
+
+@app.route('/restaurantRatings', methods=['GET'])
+def restaurantRatings():
+    conn = db.connect()
+    query = "SELECT DISTINCT l.name, AVG(r.rating) as avg_rating FROM Reviews r JOIN Locations l ON r.locationID = l.id WHERE l.name = ANY (SELECT l.name FROM Locations l JOIN LocationOfType t on l.id = t.locationID JOIN Categories c ON t.categoryID = c.id WHERE c.name = 'Restaurant') GROUP BY l.name ORDER BY avg_rating DESC;"
+    query_results = conn.execute(query)
+    conn.close()
+
+    results = [dict(row) for row in query_results]
+    result_dict = {'results': results}
+    return jsonify(result_dict)
+
+@app.route('/restaurantHoursVisited', methods=['GET'])
+def restaurantHoursVisited():
+    conn = db.connect()
+    query = "SELECT hour(time) as hourVisited, sum(hasCovid=1) as CovidCount, sum(hasCovid=0) as nonCovidCount FROM UserVisited WHERE locationID in (SELECT locationID FROM LocationOfType WHERE categoryID = 1) GROUP BY hour(time) ORDER BY hourVisited;"
+    query_results = conn.execute(query)
+    conn.close()
+
+    results = [dict(row) for row in query_results]
+    result_dict = {'results': results}
+    return jsonify(result_dict)
