@@ -63,7 +63,7 @@ def insert_Categories(_id:int, name:str):
 def delete(table, id: int) -> None:
     """ removes from 'table' the entry that matches with 'id' """
     conn = db.connect()
-    query = 'DELETE FROM ' + str(table) + ' WHERE id={};'.format(id)
+    query = 'DELETE FROM ' + str(table) + ' WHERE id={};'.format(int(id))
     conn.execute(query)
     conn.close()
 
@@ -87,5 +87,15 @@ def tableColumns(table):
     #         "status": result[2]
     #     }
     #     todo_list.append(item)
+
+    return query_results
+
+def search(table, column, keyword):
+    """ Searches in 'table' where 'column' is like 'keyword' """
+
+    conn = db.connect()
+    query = 'SELECT * FROM ' + str(table) + ' WHERE ' + str(column) + " LIKE '%" + str(keyword) + "%';"
+    query_results = conn.execute(query)
+    conn.close()
 
     return query_results

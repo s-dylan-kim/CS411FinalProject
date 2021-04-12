@@ -81,5 +81,16 @@ def delete():
     data = request.get_json()
     table = data['table']
     id = data['data']['id']
-    dbase.delete(table, int(id))
+    dbase.delete(table, id)
     return "200"
+
+@app.route('/search', methods=['GET'])
+def search():
+    data = request.get_json()
+    table = data['table']
+    column = data['column']
+    keyword = data['keyword']
+    query_results = dbase.search(table, column, keyword)
+    results = [dict(row) for row in query_results]
+    result_dict = {'results': results}
+    return jsonify(result_dict)
