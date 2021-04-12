@@ -42,15 +42,20 @@ function App() {
   }, [])
 
   useEffect(() => {
-    setSearch("")
-    Axios.get('http://localhost:5000/getTableColumns', {
-      params: {
-        table: curTable
-      }
-    }).then((response) => {
-      setColumns(response.data.results.map(x => x.COLUMN_NAME))
-      console.log("fetched column data from " + curTable)
-    })
+    if(tables.includes(curTable)) {
+      setSearch("")
+      Axios.get('http://localhost:5000/getTableColumns', {
+        params: {
+          table: curTable
+        }
+      }).then((response) => {
+        setColumns(response.data.results.map(x => x.COLUMN_NAME))
+        console.log("fetched column data from " + curTable)
+      })
+    } 
+    // else {
+
+    // }
   }, [curTable])
 
   useEffect(() => {
