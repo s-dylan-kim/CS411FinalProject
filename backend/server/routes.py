@@ -200,7 +200,6 @@ def delete():
 
 @app.route('/search', methods=['GET'])
 def search():
-    print(request.args)
     table = request.args.get('table')
     column = request.args.get('column')
     keyword = request.args.get('keyword')
