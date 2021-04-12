@@ -99,6 +99,54 @@ def insert_Questions():
 #    data = db.fetch_data()
 #    return render_template("index.html", data = data)
 
+@app.route('updateQuestions', methods=['PATCH'])
+def updateQuestions():
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    id = data['id']
+    question = data['question']
+    userId = data['userId']
+    locationId = data['locationId']
+    dbase.update_Questions(id, question, userId, locationId)
+    return "update Questions"
+
+@app.route('updateReviews', methods=['PATCH'])
+def updateReviews():
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    id = data['id']
+    rating = data['rating']
+    userID = data['userID']
+    locationID = data['locationID']
+    review = data['review']
+    dbase.update_Reviews(id, rating, userID, locationID, review)
+    return "update Reviews"
+
+@app.route('updateUsers', methods=['PATCH'])
+def updateUsers():
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    id = data['id']
+    name = data['name']
+    hasCovid = data['hasCovid']
+    CovidStartDate = data['CovidStartDate']
+    username = data['username']
+    password = data['password']
+    dbase.update_Users(id, name, hasCovid, CovidStartDate, username, password)
+    return "update Users"
+
+@app.route('updateUserVisited', methods=['PATCH'])
+def updateUserVisited():
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    
+    id = data['id']
+    userID = data['userID']
+    locationID = data['locationID']
+    time = data['time']
+    hasCOVID = data['hasCOVID']
+    dbase.update_UserVisited(id, userID, locationID, time, hasCOVID)
+    return "updated UserVisited"
 
 @app.route('/getTableData', methods=['GET'])
 def getTableData():
