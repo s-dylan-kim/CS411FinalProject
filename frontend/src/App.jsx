@@ -42,7 +42,7 @@ function App() {
   }, [])
 
   useEffect(() => {
-
+    setSearch("")
     Axios.get('http://localhost:5000/getTableColumns', {
       params: {
         table: curTable
@@ -54,6 +54,14 @@ function App() {
   }, [curTable])
 
   useEffect(() => {
+    updateData()
+  }, [curColumn, curTable, search])
+
+  const handleChangeTable = (event) => {
+    setCurTable(event.target.value)
+  }
+
+  const updateData = () => {
     if(curColumn == "") {
       Axios.get('http://localhost:5000/getTableData', {
         params: {
@@ -65,34 +73,42 @@ function App() {
       })
     } else {
       //put search request here
+      Axios.get('http://localhost:5000/search', {
+        params: {
+          table: curTable,
+          column: curColumn,
+          keyword: search
+        }
+      }).then((response) => {
+        setData(response.data.results)
+        console.log("fetched search table data from " + curTable)
+      })
     }
-  }, [curColumn, curTable, search])
-
-  const handleChangeTable = (event) => {
-    setCurTable(event.target.value)
   }
     
   const insertRow = (event) => {
+    handleCloseInsert();
     event.preventDefault();
-    console.log(formData)
     Axios.post('http://localhost:5000/insert'+curTable, {
       data: {
         data: formData
       }
     }).then((response) => {
       console.log("inserted row in " + curTable)
+      updateData()
     })
   }
 
   const updateRow = (event) => {
+    handleCloseEditDelete();
     event.preventDefault();
-    console.log(formData)
     Axios.post('http://localhost:5000/update'+curTable, {
       data: {
         data: formData
       }
     }).then((response) => {
       console.log("updated row in " + curTable)
+      updateData()
     })
   }
 
@@ -102,6 +118,7 @@ function App() {
   }
 
   const deleteRow = () => {
+    handleCloseEditDelete();
     Axios.delete('http://localhost:5000/delete', {
       data: {
         data: curDataPoint,
@@ -109,6 +126,7 @@ function App() {
       }
     }).then((response) => {
       console.log("deleted row from " + curTable)
+      updateData()
     })
   }
 
