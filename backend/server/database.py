@@ -45,17 +45,50 @@ def delete(table, id):
     """ removes from 'table' the entry that matches with 'id' """
 
 def insert_Locations(_id:int, name:str, longitude:int, latitude:int):
-    # , category_id:int
     conn = db.connect()
     query1 = 'INSERT INTO Locations (id, name, longitude, latitude) VALUES ("{}", "{}", "{}", "{}")'.format(_id, name, longitude, latitude)
     conn.execute(query1)
-    # query2 = 'INSERT INTO LocationOfType (locationID, categoryID) VALUES ("{}", "{}")'.format(_id, category_id)
-    # conn.execute(query2)
     conn.close()
 
 def insert_Categories(_id:int, name:str):
     conn = db.connect()
     query1 = 'INSERT INTO Categories (id, name) VALUES ("{}", "{}")'.format(_id, name)
+    conn.execute(query1)
+    conn.close()
+
+def insert_User(_id:int, name:str, CovidStartDate:int, start:int, username:str, password:str):
+    conn = db.connect()
+    query1 = 'INSERT INTO User (id, name, hasCovid, CovidStartDate, username, password) VALUES ("{}", "{}", "{}", "{}", "{}", "{}",)'.format(_id, name, CovidStartDate, start, username, password)
+    conn.execute(query1)
+    conn.close()
+
+def insert_UserVisited(_id:int, userID:int, locationID:int, time:str, hasCOVID:int):
+    conn = db.connect()
+    query1 = 'INSERT INTO UserVisited (id, userID, locationID, time, hasCOVID) VALUES ("{}", "{}", "{}", "{}", "{}")'.format(_id, userID, locationID, time, hasCOVID)
+    conn.execute(query1)
+    conn.close()
+
+def insert_Reviews(_id:int, rating:int, userID:int, locationID:int, review:str):
+    conn = db.connect()
+    query1 = 'INSERT INTO Reviews (id, rating, userID, locationID, review) VALUES ("{}", "{}", "{}", "{}", "{}")'.format(_id, rating, userID, locationID, review)
+    conn.execute(query1)
+    conn.close()
+
+def insert_Answers(_id:int, answer:str, questionID:int, userID:int):
+    conn = db.connect()
+    query1 = 'INSERT INTO Answers (id, answer, questionID, userID) VALUES ("{}", "{}", "{}", "{}")'.format(_id, answer, questionID, userID)
+    conn.execute(query1)
+    conn.close()
+
+def insert_LocationOfType(locationID:int, categoryID:int):
+    conn = db.connect()
+    query1 = 'INSERT INTO LocationOfType (locationID, categoryID) VALUES ("{}", "{}")'.format(locationID, categoryID)
+    conn.execute(query1)
+    conn.close()
+
+def insert_Questions(_id:int, question:str, userId:int, locationId:int):
+    conn = db.connect()
+    query1 = 'INSERT INTO Questions (_id, question, userId, locationId) VALUES ("{}", "{}", "{}", "{}")'.format(_id, question, userId, locationId)
     conn.execute(query1)
     conn.close()
  
@@ -76,7 +109,7 @@ def tableColumns(table):
     conn = db.connect()
     query_results = conn.execute("SHOW COLUMNS FROM Locations;")
     conn.close()
-    todo_list = []
+    #todo_list = []
     print(query_results)
     # for result in query_results:
     #     item = {
