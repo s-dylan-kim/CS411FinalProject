@@ -25,17 +25,16 @@ def insert_Categories():
     dbase.insert_Categories(int(_id), name)
     return "inserted " + name
 
-@app.route('/insertUser', methods=['POST'])
+@app.route('/insertUsers', methods=['POST'])
 def insert_User():
     dataJSON = request.get_json()
     data = dataJSON['data']['data']
     _id = data['id']
     name = data['name']
-    CovidStartDate = data['CovidStartDate']
-    start = data['start']
+    hasCovid = data['hasCovid']
     username = data['username']
     password = data['password']
-    dbase.insert_User(int(_id), name, CovidStartDate, start, username, password)
+    dbase.insert_User(int(_id), name, hasCovid, username, password)
     return "inserted " + name
 
 @app.route('/insertUserVisited', methods=['POST'])
@@ -99,7 +98,7 @@ def insert_Questions():
 #    data = db.fetch_data()
 #    return render_template("index.html", data = data)
 
-@app.route('updateQuestions', methods=['PATCH'])
+@app.route('/updateQuestions', methods=['POST'])
 def updateQuestions():
     dataJSON = request.get_json()
     data = dataJSON['data']['data']
@@ -110,7 +109,7 @@ def updateQuestions():
     dbase.update_Questions(id, question, userId, locationId)
     return "update Questions"
 
-@app.route('updateReviews', methods=['PATCH'])
+@app.route('/updateReviews', methods=['POST'])
 def updateReviews():
     dataJSON = request.get_json()
     data = dataJSON['data']['data']
@@ -122,7 +121,7 @@ def updateReviews():
     dbase.update_Reviews(id, rating, userID, locationID, review)
     return "update Reviews"
 
-@app.route('updateUsers', methods=['PATCH'])
+@app.route('/updateUsers', methods=['POST'])
 def updateUsers():
     dataJSON = request.get_json()
     data = dataJSON['data']['data']
@@ -135,7 +134,7 @@ def updateUsers():
     dbase.update_Users(id, name, hasCovid, CovidStartDate, username, password)
     return "update Users"
 
-@app.route('updateUserVisited', methods=['PATCH'])
+@app.route('/updateUserVisited', methods=['POST'])
 def updateUserVisited():
     dataJSON = request.get_json()
     data = dataJSON['data']['data']
@@ -208,7 +207,7 @@ def search():
     result_dict = {'results': results}
     return jsonify(result_dict)
 
-@app.route('/updateLocations', methods=['PATCH'])
+@app.route('/updateLocations', methods=['POST'])
 def update_Locations():
     dataJSON = request.get_json()
     data = dataJSON['data']['data']
@@ -219,7 +218,7 @@ def update_Locations():
     dbase.update_Locations(int(_id), name, longitude, latitude)
     return "updated " + name
 
-@app.route('/updateCategories', methods=['PATCH'])
+@app.route('/updateCategories', methods=['POST'])
 def update_Categories():
     dataJSON = request.get_json()
     data = dataJSON['data']['data']
@@ -228,7 +227,7 @@ def update_Categories():
     dbase.update_Categories(int(_id), name)
     return "updated " + name
 
-@app.route('/updateAnswers', methods=['PATCH'])
+@app.route('/updateAnswers', methods=['POST'])
 def update_Answers():
     dataJSON = request.get_json()
     data = dataJSON['data']['data']
@@ -239,7 +238,7 @@ def update_Answers():
     dbase.update_Answers(int(_id), answer, questionID, userID)
     return "updated answer"
 
-@app.route('/updateLocationOfType', methods=['PATCH'])
+@app.route('/updateLocationOfType', methods=['POST'])
 def update_LocationOfType():
     dataJSON = request.get_json()
     data = dataJSON['data']['data']

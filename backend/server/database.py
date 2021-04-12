@@ -56,9 +56,9 @@ def insert_Categories(_id:int, name:str):
     conn.execute(query1)
     conn.close()
 
-def insert_User(_id:int, name:str, CovidStartDate:int, start:int, username:str, password:str):
+def insert_User(_id:int, name:str, hasCovid:int, username:str, password:str):
     conn = db.connect()
-    query1 = 'INSERT INTO User (id, name, hasCovid, CovidStartDate, username, password) VALUES ("{}", "{}", "{}", "{}", "{}", "{}",)'.format(_id, name, CovidStartDate, start, username, password)
+    query1 = 'INSERT INTO Users (id, name, hasCovid, username, password) VALUES ("{}", "{}", "{}", "{}", "{}", "{}")'.format(_id, name, hasCovid, username, password)
     conn.execute(query1)
     conn.close()
 
