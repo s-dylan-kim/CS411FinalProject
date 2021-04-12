@@ -132,3 +132,27 @@ def search(table, column, keyword):
     conn.close()
 
     return query_results
+
+def update_Locations(_id:int, name:str, longitude:int, latitude:int):
+    conn = db.connect()
+    query1 = 'UPDATE Locations SET id = "{}", name = "{}", longitude = "{}", latitude = "{}" WHERE id = "{}"'.format(_id, name, longitude, latitude, _id)
+    conn.execute(query1)
+    conn.close()
+
+def update_Categories(_id:int, name:str):
+    conn = db.connect()
+    query1 = 'UPDATE Categories SET id = "{}", name = "{}" WHERE id = "{}"'.format(_id, name, _id)
+    conn.execute(query1)
+    conn.close()
+
+def update_Answers(_id:int, answer:str, questionID:int, userID:int):
+    conn = db.connect()
+    query1 = 'UPDATE Answers SET id = "{}", answer = "{}", questionID = "{}", userID = "{}" WHERE id = "{}"'.format(_id, answer, questionID, userID, _id)
+    conn.execute(query1)
+    conn.close()
+
+def update_LocationOfType(locationID:int, categoryID:int):
+    conn = db.connect()
+    query1 = 'UPDATE LocationOfType SET locationID = "{}", categoryID = "{}" WHERE locationID = "{}" and categoryID = "{}"'.format(locationID, categoryID, locationID, categoryID)
+    conn.execute(query1)
+    conn.close()

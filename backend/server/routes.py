@@ -160,3 +160,43 @@ def search():
     results = [dict(row) for row in query_results]
     result_dict = {'results': results}
     return jsonify(result_dict)
+
+@app.route('/updateLocations', methods=['PATCH'])
+def update_Locations():
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    _id = data['id']
+    name = data['name']
+    longitude = data['longitude']
+    latitude = data['latitude']
+    dbase.update_Locations(int(_id), name, longitude, latitude)
+    return "updated " + name
+
+@app.route('/updateCategories', methods=['PATCH'])
+def update_Categories():
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    _id = data['id']
+    name = data['name']
+    dbase.update_Categories(int(_id), name)
+    return "updated " + name
+
+@app.route('/updateAnswers', methods=['PATCH'])
+def update_Answers():
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    _id = data['id']
+    answer = data['answer']
+    questionID = data['questionID']
+    userID = data['userID']
+    dbase.update_Answers(int(_id), answer, questionID, userID)
+    return "updated answer"
+
+@app.route('/updateLocationOfType', methods=['PATCH'])
+def update_LocationOfType():
+    dataJSON = request.get_json()
+    data = dataJSON['data']['data']
+    locationID = data['locationID']
+    categoryID = data['categoryID']
+    dbase.update_LocationOfType(int(locationID), categoryID)
+    return "updated location type"
