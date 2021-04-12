@@ -152,10 +152,10 @@ def delete():
 
 @app.route('/search', methods=['GET'])
 def search():
-    data = request.get_json()
-    table = data['table']
-    column = data['column']
-    keyword = data['keyword']
+    print(request.args)
+    table = request.args.get('table')
+    column = request.args.get('column')
+    keyword = request.args.get('keyword')
     query_results = dbase.search(table, column, keyword)
     results = [dict(row) for row in query_results]
     result_dict = {'results': results}
