@@ -1,265 +1,413 @@
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'react-bootstrap-typeahead/css/Typeahead.css';
 import React, { useState, useEffect } from 'react';
-import { Form, Table, Button, Modal } from "react-bootstrap";
+import { Typeahead } from 'react-bootstrap-typeahead';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faVirusSlash, faVirus, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import Autosuggest from 'react-bootstrap-autosuggest';
+import { Navbar, Form, Table, Button, Modal } from "react-bootstrap";
 import Axios from 'axios';
 
 function App() {
-  const [tables, setTables] = useState([])
-  const [curTable, setCurTable] = useState("none")
-  const [columns, setColumns] = useState([])
-  const [data, setData] = useState([])
-  const [showInsert, setShowInsert] = useState(false)
-  const [showEditDelete, setShowEditDelete] = useState(false)
-  const [curDataPoint, setCurDataPoint] = useState([])
-  const [curColumn, setCurColumn] = useState("")
-  const [search, setSearch] = useState("")
-  const [formData, setFormData] = useState({})
+  const [isHome, setIsHome] = useState(true); //using variable instead of router since only 2 pages
+  const [location, setLocation] = useState("");
+  const [locationPicker, setLocationPicker] = useState("");
+  const [locationList, setLocationList] = useState([]);
+  const [showLogin, setShowLogin] = useState(false)
+  const [showSignup, setShowSignup] = useState(false)
+  const [showQuestion, setShowQuestion] = useState(false)
+  const [showAsk, setShowAsk] = useState(false)
+  const [showAnswer, setShowAnswer] = useState(false)
+  const [showReview, setShowReview] = useState(false)
+  const [showVisit, setShowVisit] = useState(false)
 
-  const advancedQueries = ['locationCategory', 'locationsPositive', 'restaurantRatings', 'restaurantHoursVisited']
+  const [categories, setCategories] = useState(["hello", "test2"]);
+  const [longitude, setLongitude] = useState(0);
+  const [latitude, setLatitude] = useState(0);
+  const [questions, setQuestions] = useState([]);
+  const [reviews, setReviews] = useState([]);
+  const [dateSlider, setDateSlider] = useState(50);
+  const [signedIn, setSignedIn] = useState(false);
+  const [curQuestionId, setCurQuestionId] = useState(0);
+  const [curQuestion, setCurQuestion] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleCloseInsert = () => {
-    setFormData({})
-    setShowInsert(false);
+  const handleCloseLogin = () => {
+    setShowLogin(false);
   }
-  const handleShowInsert = () => {
-    setFormData({})
-    setShowInsert(true);
+  const handleCloseSignup = () => {
+    setShowSignup(false);
   }
-  const handleCloseEditDelete = () => {
-    setFormData({})
-    setShowEditDelete(false);
+  const handleCloseQuestion = () => {
+    setShowQuestion(false);
   }
-  const handleShowEditDelete = () => {
-    setFormData({})
-    setShowEditDelete(true);
+  const handleCloseAsk = () => {
+    setShowAsk(false);
+  }
+  const handleCloseAnswer = () => {
+    setShowAnswer(false);
+  }
+  const handleCloseReview = () => {
+    setShowReview(false);
+  }
+  const handleCloseShowVisit = () => {
+    setShowVisit(false);
   }
 
   useEffect(() => {
-    Axios.get('http://localhost:5000/getTableNames').then((response) => {
-      setTables(response.data.results.map(x => x.TableName))
-      setCurTable(response.data.results[0].TableName)
-      console.log("fetched table names")
-    })
-  }, [])
-
-  useEffect(() => {
-    if(tables.includes(curTable)) {
-      setSearch("")
-      Axios.get('http://localhost:5000/getTableColumns', {
-        params: {
-          table: curTable
-        }
-      }).then((response) => {
-        setColumns(response.data.results.map(x => x.COLUMN_NAME))
-        console.log("fetched column data from " + curTable)
-      })
-    } 
-  }, [curTable])
-
-  useEffect(() => {
-    updateData()
-  }, [curColumn, curTable, search])
-
-  const handleChangeTable = (event) => {
-    setCurTable(event.target.value)
-  }
-
-  const updateData = () => {
-    if(tables.includes(curTable)) {
-      if(curColumn == "") {
-        Axios.get('http://localhost:5000/getTableData', {
-          params: {
-            table: curTable
-          }
-        }).then((response) => {
-          setData(response.data.results)
-          console.log("fetched table data from " + curTable)
-        })
-      } else {
-        //put search request here
-        Axios.get('http://localhost:5000/search', {
-          params: {
-            table: curTable,
-            column: curColumn,
-            keyword: search
-          }
-        }).then((response) => {
-          setData(response.data.results)
-          console.log("fetched search table data from " + curTable)
-        })
+    Axios.get('http://localhost:5000/getTableData', {
+      params: {
+        table: "Locations"
       }
-    } else {
-      setSearch("")
-      Axios.get('http://localhost:5000/' + curTable).then((response) => {
-        var queryData = response.data.results
-        var queryCols = []
-        Object.keys(queryData[0]).map(key => queryCols.push(key))
-        setColumns(queryCols)
-        setData(queryData)
-        console.log("fetched advanced query data for " + curTable)
-      })
+    }).then((response) => {
+      setLocationList(response.data.results.map(x => x.name))
+      console.log("fetched locations")
+      setIsHome(true)
+    })
+  }, []);
+
+  useEffect(() => {
+    console.log(location)
+  }, [location]);
+
+  const updateDateRange = (e) => {
+    setDateSlider(100-e.target.value)
+  }
+
+  const changeLocation = (locations) => {
+    setLocationPicker(locations)
+    if(locations.length != 0) {
+      setIsHome(false)
+      setLocation(locations[0])
     }
   }
-    
-  const insertRow = (event) => {
-    handleCloseInsert();
+
+  const login = (event) => {
     event.preventDefault();
-    Axios.post('http://localhost:5000/insert'+curTable, {
-      data: {
-        data: formData
-      }
-    }).then((response) => {
-      console.log("inserted row in " + curTable)
-      updateData()
-    })
-  }
-
-  const updateRow = (event) => {
-    handleCloseEditDelete();
-    event.preventDefault();
-    Axios.post('http://localhost:5000/update'+curTable, {
-      data: {
-        data: formData
-      }
-    }).then((response) => {
-      console.log("updated row in " + curTable)
-      updateData()
-    })
-  }
-
-  const showEditDeleteModal = (item) => {
-    setCurDataPoint(item)
-    handleShowEditDelete()
-  }
-
-  const deleteRow = () => {
-    handleCloseEditDelete();
-    Axios.delete('http://localhost:5000/delete', {
-      data: {
-        data: curDataPoint,
-        table: curTable
-      }
-    }).then((response) => {
-      console.log("deleted row from " + curTable)
-      updateData()
-    })
-  }
-
-  const searchUpdate = (event) => {
-    setCurColumn(event.target.name)
-    setSearch(event.target.value)
-  }
-
-  const formUpdate = (event) => {
-    setFormData({...formData, [event.target.name]: event.target.value})
-  }
-
+    console.log(event.target.username.value)
+    console.log(event.target.password.value)
     
+    // Axios.post('http://localhost:5000/login', {
+    //   data: {
+    //     username: event.target.username.value,
+    //     password: event.target.password.value
+    //   }
+    // }).then((response) => {
+    //   setUsername(event.target.username.value)
+    //   setPassword(event.target.password.value)
+    //   setSignedIn(true)
+    //   handleCloseLogin();
+    // })
+  }
+
+  const signup = (event) => {
+    event.preventDefault();
+    console.log(event.target.username.value)
+    console.log(event.target.password.value)
+    console.log(event.target.password.name)
+    handleCloseSignup();
+
+    // Axios.post('http://localhost:5000/signup', {
+    //   data: {
+    //     username: event.target.username.value,
+    //     password: event.target.password.value,
+    //     name: event.target.name.value
+    //   }
+    // }).then((response) => {
+    //   setUsername(event.target.username.value)
+    //   setPassword(event.target.password.value)
+    //   setSignedIn(true)
+    // })
+  }
+
+  const ask = (event) => {
+    event.preventDefault();
+    console.log(event.target.question.value)
+
+    // Axios.post('http://localhost:5000/ask', {
+    //   data: {
+    //     username: username,
+    //     password: password,
+    //     location: location,
+    //     question: event.target.question.value,
+    //   }
+    // }).then((response) => {
+    //   handleCloseQuestion()
+    //   update somehow
+    // })
+  }
+
+  const answer = (event) => {
+    event.preventDefault();
+    console.log(event.target.answer.value)
+    handleCloseQuestion();
+
+    // Axios.post('http://localhost:5000/answer', {
+    //   data: {
+    //     username: username,
+    //     password: password,
+    //     location: location,
+    //     question: curQuestionId,
+    //     answer: event.target.answer.value
+    //   }
+    // }).then((response) => {
+    //   handleCloseAnswer()
+    // })
+  }
+
+  const review = (event) => {
+    event.preventDefault();
+    console.log(event.target.score.value)
+    console.log(event.target.review.value)
+
+    // Axios.post('http://localhost:5000/review', {
+    //   data: {
+    //     username: username,
+    //     password: password,
+    //     location: location,
+    //     score: event.target.score.value,
+    //     review: event.target.review.value
+    //   }
+    // }).then((response) => {
+    //   handleCloseReview()
+    //   update somehow
+    // })
+  }
+
+  const visit = (event) => {
+    event.preventDefault();
+    console.log(event.target.date.value)
+    console.log(event.target.hasCovid.value)
+
+    // Axios.post('http://localhost:5000/visit', {
+    //   data: {
+    //     username: username,
+    //     password: password,
+    //     location: location,
+    //     date: event.target.date.value,
+    //     hasCovid: event.target.hasCovid.value
+    //   }
+    // }).then((response) => {
+    //   handleCloseReview()
+    //   update somehow
+    // })
+  }
 
   return (
-    <div className="App">
-      <Form.Control
-        as="select"
-        custom
-        onChange={handleChangeTable}
-      >
-        {
-          tables.map((item, i) => (
-            <option key={i} value={item}>
-              {item}
-            </option>
-          ))
+    <React.Fragment>
+      <Navbar>
+        {!isHome &&
+          <Navbar.Text onClick={() => setIsHome(true)}>
+            <FontAwesomeIcon icon={faArrowLeft}/>
+            </Navbar.Text>
         }
-        {
-          advancedQueries.map((item,i) => (
-            <option key={i} value={item}>
-              {item}
-            </option>
-          ))
-        }
-      </Form.Control>
-      <Table striped bordered hover>
-        <thead>
-          <tr>
-            {
-              columns.map((item, i) => (
-                <th key={i}>{item}</th>
-              ))
-            }
-            <th>Action</th>
-          </tr>
-          <tr>
-            {
-              columns.map((item, i) => (
-                <th key={i}><Form.Control type="text" name={item} placeholder="search" onChange={searchUpdate}/></th>
-              ))
-            }
-            <th/>
-          </tr>
-        </thead>
-        <tbody>
-          {
-              data.map((item, i) => (
-                <tr key={i}>
-                  {
-                    columns.map((col, j) => (
-                      <td key={j}>{item[col]}</td>
-                    ))
-                  }
-                  <td><Button variant="danger" onClick={() => showEditDeleteModal(item)}>Edit/Delete</Button></td>
-                </tr>
-              ))
+        <Navbar.Brand>Covid Tracker</Navbar.Brand>
+        <Navbar.Collapse className="justify-content-end">
+          {signedIn ?
+            <Navbar.Text>
+              Sign Out
+            </Navbar.Text>
+          :
+            <React.Fragment>
+              <Navbar.Text onClick={() => setShowSignup(true)}>
+                Sign Up
+              </Navbar.Text>
+              <Navbar.Text onClick={() => setShowLogin(true)}>
+                Sign In
+              </Navbar.Text>
+            </React.Fragment>
           }
-        </tbody>
-      </Table>
-      <Button onClick={handleShowInsert}>Insert</Button>
+        </Navbar.Collapse>
+      </Navbar>
+      {isHome ?
+        <Typeahead
+          id="locationPicker"
+          labelKey="name"
+          onChange={changeLocation}
+          options={locationList}
+          placeholder="Choose a Location..."
+          selected={locationPicker}
+        />
+        :
+        <React.Fragment>
+          <h1>{ location }</h1>
+          <p>Categories: {
+            categories.map(x => x + " ")
+          }</p>
+          <p>{longitude}, {latitude}</p>
+          <Form.Control type="range" onChange={updateDateRange}/>
+          <p>Last { dateSlider } days</p>
+          <Button variant="primary" onClick={() => setShowVisit(true)}>
+            Add a Visit
+          </Button>
 
-      <Modal show={showInsert} onHide={handleCloseInsert}>
+        </React.Fragment>
+      }
+
+      {/* Log In */}
+      <Modal show={showLogin} onHide={handleCloseLogin}>
         <Modal.Header closeButton>
-          <Modal.Title>Insert Data Into {curTable}</Modal.Title>
+          <Modal.Title>Login</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form onSubmit={insertRow}>
-            {
-              columns.map((item, i) => (
-                <Form.Group key={i} controlId={item}>
-                  <Form.Label>{item}</Form.Label>
-                  <Form.Control type="text" name={item} placeholder={curDataPoint[item]} onChange={formUpdate}/>
-                </Form.Group>
-              ))
-            }
+          <Form onSubmit={login}>
+            <Form.Group controlId="username">
+              <Form.Label>Username</Form.Label>
+              <Form.Control type="text" name="username" placeholder="username"/>
+            </Form.Group>
+            <Form.Group controlId="password">
+              <Form.Label>Password</Form.Label>
+              <Form.Control type="text" name="password" placeholder="password"/>
+            </Form.Group>
             <Button variant="primary" type="submit">
-              Insert
+              Submit
+            </Button>
+            <Button variant="secondary" onClick={handleCloseLogin}>
+              Cancel
             </Button>
           </Form>
         </Modal.Body>
       </Modal>
 
-      <Modal show={showEditDelete} onHide={handleCloseEditDelete}>
+      {/* Sign Up */}
+      <Modal show={showSignup} onHide={handleCloseSignup}>
         <Modal.Header closeButton>
-          <Modal.Title>Edit/Delete From {curTable}</Modal.Title>
+          <Modal.Title>Sign Up</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Form onSubmit={updateRow}>
-            {
-              columns.map((item, i) => (
-                <Form.Group key={i} controlId={item}>
-                  <Form.Label>{item}</Form.Label>
-                  <Form.Control type="text" name={item} placeholder={curDataPoint[item]} onChange={formUpdate}/>
-                </Form.Group>
-              ))
-            }
-            <Button variant="info" type="submit">
-              Edit
+          <Form onSubmit={signup}>
+            <Form.Group controlId="username">
+              <Form.Label>Username</Form.Label>
+              <Form.Control type="text" name="username" placeholder="username"/>
+            </Form.Group>
+            <Form.Group controlId="name">
+              <Form.Label>Name</Form.Label>
+              <Form.Control type="text" name="name" placeholder="name"/>
+            </Form.Group>
+            <Form.Group controlId="password">
+              <Form.Label>Password</Form.Label>
+              <Form.Control type="text" name="password" placeholder="password"/>
+            </Form.Group>
+            <Button variant="primary" type="submit">
+              Submit
             </Button>
-            <Button variant="danger" onClick={deleteRow}>
-              Delete
+            <Button variant="secondary" onClick={handleCloseLogin}>
+              Cancel
             </Button>
           </Form>
         </Modal.Body>
       </Modal>
-    </div>
+
+      {/* Ask a Question */}
+      <Modal show={showAsk} onHide={handleCloseAsk}>
+        <Modal.Header closeButton>
+          <Modal.Title>Ask a Question</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={ask}>
+            <Form.Group controlId="question">
+              <Form.Label>Question</Form.Label>
+              <Form.Control type="textarea" rows={3} name="question" placeholder="question"/>
+            </Form.Group>
+            <Button variant="primary" type="submit">
+              Ask
+            </Button>
+            <Button variant="secondary" onClick={handleCloseAsk}>
+              Cancel
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
+      {/* Question Modal */}
+      <Modal show={showQuestion} onHide={handleCloseQuestion}>
+        <Modal.Header closeButton>
+          <Modal.Title>"Question Name"</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+            Question Data
+            <Button variant="primary">
+              Answer
+            </Button>
+        </Modal.Body>
+      </Modal>
+
+      {/* Answer */}
+      <Modal show={showAnswer} onHide={handleCloseAnswer}>
+        <Modal.Header closeButton>
+          <Modal.Title>"Question Name"</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={answer}>
+            <Form.Group controlId="answer">
+              <Form.Label>Answer</Form.Label>
+              <Form.Control type="text" name="answer" placeholder="answer"/>
+            </Form.Group>
+            <Button variant="primary" type="submit">
+              Submit
+            </Button>
+            <Button variant="secondary" onClick={handleCloseAnswer}>
+              Cancel
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
+      {/* Review */}
+      <Modal show={showReview} onHide={handleCloseReview}>
+        <Modal.Header closeButton>
+          <Modal.Title>Leave a Review</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={review}>
+            <Form.Group controlId="score">
+              <Form.Label>Score</Form.Label>
+              <Form.Control type="text" name="score" placeholder="1-10"/>
+            </Form.Group>
+            <Form.Group controlId="review">
+              <Form.Label>Review</Form.Label>
+              <Form.Control type="textarea" rows={3} name="review" placeholder="review"/>
+            </Form.Group>
+            <Button variant="primary" type="submit">
+              Submit
+            </Button>
+            <Button variant="secondary" onClick={handleCloseReview}>
+              Cancel
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
+      {/* I was Here */}
+      <Modal show={showVisit} onHide={handleCloseShowVisit}>
+        <Modal.Header closeButton>
+          <Modal.Title>Login</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form onSubmit={visit}>
+            <Form.Group controlId="date">
+              <Form.Label>Date Visited</Form.Label>
+              <Form.Control type="text" name="date" placeholder="2021-4-25"/>
+            </Form.Group>
+            <Form.Group controlId="hasCovid">
+              <Form.Label>Did you have Covid</Form.Label>
+              <Form.Control as="select">
+                <option>Yes</option>
+                <option>No</option>
+              </Form.Control>
+            </Form.Group>
+            <Button variant="primary" type="submit">
+              Submit
+            </Button>
+            <Button variant="secondary" onClick={handleCloseShowVisit}>
+              Cancel
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+    </React.Fragment>
   );
 }
 
