@@ -64,7 +64,8 @@ def insert_User(_id:int, name:str, hasCovid:int, username:str, password:str):
 
 def insert_UserVisited(_id:int, userID:int, locationID:int, time:str, hasCOVID:int):
     conn = db.connect()
-    query1 = 'INSERT INTO UserVisited (id, userID, locationID, time, hasCOVID) VALUES ("{}", "{}", "{}", "{}", "{}")'.format(_id, userID, locationID, time, hasCOVID)
+    # query1 = 'INSERT INTO UserVisited (id, userID, locationID, time, hasCOVID) VALUES ("{}", "{}", "{}", "{}", "{}")'.format(_id, userID, locationID, time, hasCOVID)
+    query1 = 'CALL updateCovidStatus("{}", "{}", "{}", "{}", "{}")'.format(_id, userID, locationID, time, hasCOVID)
     conn.execute(query1)
     conn.close()
 
