@@ -1,5 +1,7 @@
 import random
 from server import db
+from datetime import datetime, timedelta, date
+import time
 
 def update(data, entry_num, us, loc, rev, rat):
     data[entry_num]["user"] = us
@@ -159,3 +161,47 @@ def update_UserVisited(id, userID, locationID, time, hasCOVID):
     query = 'UPDATE UserVisited SET userID = "{}", locationID = "{}", time = "{}", hasCOVID = "{}" WHERE id = "{}"'.format(int(userID), int(locationID), str(time), int(hasCOVID), int(id))
     conn.execute(query)
     conn.close()
+
+def get_Answers(questionID:int):
+    conn = db.connect()
+    query = 'SELECT * FROM Answers WHERE questionID = ' + questionID
+    query_results = conn.execute(query)
+    conn.close()
+    return query_results
+
+def get_Locations(locationID:int):
+    conn = db.connect()
+    query = 'SELECT name, longitude, latitude FROM Locations WHERE id = ' + locationID
+    query_results = conn.execute(query)
+    conn.close()
+    return query_results
+
+def get_UserVisited(locationID:int):
+    conn = db.connect()
+    query = 'SELECT id, userID, time, hasCOVID FROM UserVisited WHERE locationID = ' + locationID
+    query_results = conn.execute(query)
+    conn.close()
+    return query_results
+
+def get_Questions(locationID:int):
+    conn = db.connect()
+    query = 'SELECT id, question, userId FROM Questions WHERE locationId = ' + locationID
+    query_results = conn.execute(query)
+    conn.close()
+    return query_results
+
+def get_Reviews(locationID:int):
+    conn = db.connect()
+    query = 'SELECT id, rating, userID, review FROM Reviews WHERE locationID = ' + locationID
+    query_results = conn.execute(query)
+    conn.close()
+    return query_results
+
+def UserVisited_Range(num:int):
+    date = datetime.now() - timedelta(int(num))
+    pastdate = date.strftime("%Y-%m-%d %H:%M:%S")
+    conn = db.connect()
+    query = "SELECT * FROM UserVisited WHERE time > '" + pastdate + "'"
+    query_results = conn.execute(query)
+    conn.close()
+    return query_results
