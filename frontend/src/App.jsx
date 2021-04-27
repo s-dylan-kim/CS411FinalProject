@@ -90,10 +90,8 @@ function App() {
     console.log(event.target.password.value)
     
     // Axios.post('http://localhost:5000/login', {
-    //   data: {
-    //     username: event.target.username.value,
-    //     password: event.target.password.value
-    //   }
+    //   username: event.target.username.value,
+    //   password: event.target.password.value
     // }).then((response) => {
     //   setUsername(event.target.username.value)
     //   setPassword(event.target.password.value)
@@ -110,11 +108,9 @@ function App() {
     handleCloseSignup();
 
     // Axios.post('http://localhost:5000/signup', {
-    //   data: {
-    //     username: event.target.username.value,
-    //     password: event.target.password.value,
-    //     name: event.target.name.value
-    //   }
+    //   username: event.target.username.value,
+    //   password: event.target.password.value,
+    //   name: event.target.name.value
     // }).then((response) => {
     //   setUsername(event.target.username.value)
     //   setPassword(event.target.password.value)
@@ -149,7 +145,7 @@ function App() {
     //     username: username,
     //     password: password,
     //     location: location,
-    //     question: curQuestionId,
+    //     questionId: curQuestionId,
     //     answer: event.target.answer.value
     //   }
     // }).then((response) => {
