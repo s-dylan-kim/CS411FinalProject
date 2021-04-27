@@ -1,4 +1,6 @@
 """Setup at app startup"""
+# import sys
+# sys.path.append("/usr/local/lib/python2.7/site-packages")
 import os
 import sqlalchemy
 from flask import Flask

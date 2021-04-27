@@ -179,3 +179,13 @@ def update_UserVisited(id, userID, locationID, time, hasCOVID):
     query = 'UPDATE UserVisited SET userID = "{}", locationID = "{}", time = "{}", hasCOVID = "{}" WHERE id = "{}"'.format(int(userID), int(locationID), str(time), int(hasCOVID), int(id))
     conn.execute(query)
     conn.close()
+
+def userNotInDatabase(username, password):
+    conn = db.connect()
+    query = "SELECT COUNT(*) AS C FROM Users WHERE username = '{}' AND password = '{}';".format(username, password)
+    query_results = conn.execute(query)
+    conn.close()
+    results = [dict(row) for row in query_results]
+    result_dict = {0: results}
+    # print(type(results[0]['C']))
+    return not bool(results[0]['C'])
