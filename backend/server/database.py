@@ -1,30 +1,5 @@
-# import random
 import random
 from server import db
-
-
-# def fetch_data():
-#         data = [
-#             {
-#                 "user": "Anonymous",
-#                 "location": "Panda Express",
-#                 "review": "Tastes good",
-#                 "rating": 9
-#             },
-#             {
-#                 "user": "Anonymous",
-#                 "location": "Taco Bell",
-#                 "review": "feelsbadman",
-#                 "rating": 3
-#             },
-#             {
-#                 "user": "Anonymous",
-#                 "location": "McDonald's",
-#                 "review": "Cheap",
-#                 "rating": 5
-#             }
-#         ]
-#         return data
 
 def update(data, entry_num, us, loc, rev, rat):
     data[entry_num]["user"] = us
@@ -64,6 +39,7 @@ def insert_User(_id:int, name:str, hasCovid:int, username:str, password:str):
 
 def insert_UserVisited(_id:int, userID:int, locationID:int, time:str, hasCOVID:int):
     conn = db.connect()
+    # weird stored procedure insert fix but it works I guess
     # query1 = 'INSERT INTO UserVisited (id, userID, locationID, time, hasCOVID) VALUES ("{}", "{}", "{}", "{}", "{}")'.format(_id, userID, locationID, time, hasCOVID)
     query1 = 'CALL updateCovidStatus("{}", "{}", "{}", "{}", "{}")'.format(_id, userID, locationID, time, hasCOVID)
     conn.execute(query1)

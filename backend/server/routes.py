@@ -300,7 +300,7 @@ def getLocationsMostRisk():
     return jsonify(result_dict)
 
 @app.route('/getLocationsLeastRisk', methods=['GET'])
-def getLocationsMostRisk():
+def getLocationsLeastRisk():
     conn = db.connect()
     query = "SELECT * FROM LocationLeastRisk;"
     query_results = conn.execute(query)
