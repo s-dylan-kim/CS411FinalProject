@@ -288,3 +288,23 @@ def restaurantHoursVisited():
     results = [dict(row) for row in query_results]
     result_dict = {'results': results}
     return jsonify(result_dict)
+
+@app.route('/getLocationsMostRisk', methods=['GET'])
+def getLocationsMostRisk():
+    conn = db.connect()
+    query = "SELECT * FROM LocationMostRisk;"
+    query_results = conn.execute(query)
+
+    results = [dict(row) for row in query_results]
+    result_dict = {'results': results}
+    return jsonify(result_dict)
+
+@app.route('/getLocationsLeastRisk', methods=['GET'])
+def getLocationsMostRisk():
+    conn = db.connect()
+    query = "SELECT * FROM LocationLeastRisk;"
+    query_results = conn.execute(query)
+
+    results = [dict(row) for row in query_results]
+    result_dict = {'results': results}
+    return jsonify(result_dict)
