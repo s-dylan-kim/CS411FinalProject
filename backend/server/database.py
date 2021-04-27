@@ -176,12 +176,12 @@ def get_Locations(locationID:int):
     conn.close()
     return query_results
 
-def get_UserVisited(locationID:int):
-    conn = db.connect()
-    query = 'SELECT id, userID, time, hasCOVID FROM UserVisited WHERE locationID = ' + locationID
-    query_results = conn.execute(query)
-    conn.close()
-    return query_results
+# def get_UserVisited(locationID:int):
+#     conn = db.connect()
+#     query = 'SELECT id, userID, time, hasCOVID FROM UserVisited WHERE locationID = ' + locationID
+#     query_results = conn.execute(query)
+#     conn.close()
+#     return query_results
 
 def get_Questions(locationID:int):
     conn = db.connect()
@@ -202,6 +202,13 @@ def UserVisited_Range(num:int):
     pastdate = date.strftime("%Y-%m-%d %H:%M:%S")
     conn = db.connect()
     query = "SELECT * FROM UserVisited WHERE time > '" + pastdate + "'"
+    query_results = conn.execute(query)
+    conn.close()
+    return query_results
+
+def get_LocationId(name:int):
+    conn = db.connect()
+    query = "SELECT id FROM Locations WHERE name = '" + name + "'"
     query_results = conn.execute(query)
     conn.close()
     return query_results
