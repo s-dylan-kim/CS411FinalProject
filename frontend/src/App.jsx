@@ -74,7 +74,8 @@ function App() {
         name: location
       }
     }).then((response) => {
-      setLocationId(response.data.results[0].id)
+      if (response.data.results.length > 0)
+        setLocationId(response.data.results[0].id)
     })
   }, [location]);
 
@@ -87,7 +88,7 @@ function App() {
       setLongitude(response.data.LocationResults[0].longitude)
       setLatitude(response.data.LocationResults[0].latitude)
       setQuestions(response.data.questionResults)
-      setQuestions(response.data.reviewResults)
+      setReviews(response.data.reviewResults)
     })
   }, [locationId])
 
