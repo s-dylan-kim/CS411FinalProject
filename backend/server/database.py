@@ -1,30 +1,7 @@
-# import random
 import random
 from server import db
-
-
-# def fetch_data():
-#         data = [
-#             {
-#                 "user": "Anonymous",
-#                 "location": "Panda Express",
-#                 "review": "Tastes good",
-#                 "rating": 9
-#             },
-#             {
-#                 "user": "Anonymous",
-#                 "location": "Taco Bell",
-#                 "review": "feelsbadman",
-#                 "rating": 3
-#             },
-#             {
-#                 "user": "Anonymous",
-#                 "location": "McDonald's",
-#                 "review": "Cheap",
-#                 "rating": 5
-#             }
-#         ]
-#         return data
+from datetime import datetime, timedelta, date
+import time
 
 def update(data, entry_num, us, loc, rev, rat):
     data[entry_num]["user"] = us
@@ -64,7 +41,12 @@ def insert_User(_id:int, name:str, hasCovid:int, username:str, password:str):
 
 def insert_UserVisited(_id:int, userID:int, locationID:int, time:str, hasCOVID:int):
     conn = db.connect()
-    query1 = 'INSERT INTO UserVisited (id, userID, locationID, time, hasCOVID) VALUES ("{}", "{}", "{}", "{}", "{}")'.format(_id, userID, locationID, time, hasCOVID)
+    # weird stored procedure insert fix but it works I guess
+    query1 = ''
+    if hasCOVID == 0:
+        query1 = 'INSERT INTO UserVisited (id, userID, locationID, time, hasCOVID) VALUES ("{}", "{}", "{}", "{}", "{}")'.format(_id, userID, locationID, time, hasCOVID)
+    else:
+        query1 = 'CALL updateCovidStatus("{}", "{}", "{}", "{}", "{}")'.format(_id, userID, locationID, time, hasCOVID)
     conn.execute(query1)
     conn.close()
 
@@ -189,3 +171,53 @@ def userNotInDatabase(username, password):
     result_dict = {0: results}
     # print(type(results[0]['C']))
     return not bool(results[0]['C'])
+def get_Answers(questionID:int):
+    conn = db.connect()
+    query = 'SELECT * FROM Answers WHERE questionID = ' + questionID
+    query_results = conn.execute(query)
+    conn.close()
+    return query_results
+
+def get_Locations(locationID:int):
+    conn = db.connect()
+    query = 'SELECT name, longitude, latitude FROM Locations WHERE id = ' + locationID
+    query_results = conn.execute(query)
+    conn.close()
+    return query_results
+
+# def get_UserVisited(locationID:int):
+#     conn = db.connect()
+#     query = 'SELECT id, userID, time, hasCOVID FROM UserVisited WHERE locationID = ' + locationID
+#     query_results = conn.execute(query)
+#     conn.close()
+#     return query_results
+
+def get_Questions(locationID:int):
+    conn = db.connect()
+    query = 'SELECT id, question, userId FROM Questions WHERE locationId = ' + locationID
+    query_results = conn.execute(query)
+    conn.close()
+    return query_results
+
+def get_Reviews(locationID:int):
+    conn = db.connect()
+    query = 'SELECT id, rating, userID, review FROM Reviews WHERE locationID = ' + locationID
+    query_results = conn.execute(query)
+    conn.close()
+    return query_results
+
+def UserVisited_Range(num:int):
+    date = datetime.now() - timedelta(int(num))
+    pastdate = date.strftime("%Y-%m-%d %H:%M:%S")
+    conn = db.connect()
+    query = "SELECT * FROM UserVisited WHERE time > '" + pastdate + "'"
+    query_results = conn.execute(query)
+    conn.close()
+    return query_results
+
+def get_LocationId(name:int):
+    conn = db.connect()
+    query = "SELECT id FROM Locations WHERE name = '" + name + "'"
+    query_results = conn.execute(query)
+    conn.close()
+    return query_results

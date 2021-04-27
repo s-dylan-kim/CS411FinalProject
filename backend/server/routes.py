@@ -264,6 +264,7 @@ def update_LocationOfType():
     categoryID = data['categoryID']
     dbase.update_LocationOfType(int(locationID), categoryID)
     return "updated location type"
+
 @app.route('/locationCategory', methods=['GET'])
 def locationCategory():
     conn = db.connect()
@@ -430,6 +431,61 @@ def visit():
     conn.execute(query1)
     conn.close()
     return dict({"isSuccessful": 1})
-# /visit:
-#   -takes username, password, locationId, date, hasCovid
-#   -adds to userVisited table, throws error if credentials not valid
+
+@app.route('/getLocationsMostRisk', methods=['GET'])
+def getLocationsMostRisk():
+    conn = db.connect()
+    query = "SELECT * FROM LocationMostRisk;"
+    query_results = conn.execute(query)
+    result_dict = {'results': results}
+    return jsonify(result_dict)
+
+@app.route('/getAnswers', methods=['GET'])
+def get_Answers():
+    questionID = request.args.get('questionID')
+    query_results = dbase.get_Answers(questionID)
+    results = [dict(row) for row in query_results]
+    result_dict = {'results': results}
+    return jsonify(result_dict)
+
+@app.route('/getLocationsLeastRisk', methods=['GET'])
+def getLocationsLeastRisk():
+    conn = db.connect()
+    query = "SELECT * FROM LocationLeastRisk;"
+    query_results = conn.execute(query)
+    result_dict = {'results': results}
+    return jsonify(result_dict)
+
+@app.route('/getLocationData', methods=['GET'])
+def get_Location_Data():
+    locationID = request.args.get('id')
+    location_results = dbase.get_Locations(locationID)
+    # visited_results = dbase.get_UserVisited(locationID)
+    question_results = dbase.get_Questions(locationID)
+    review_results = dbase.get_Reviews(locationID)
+    lresults = [dict(row) for row in location_results]
+    # vresults = [dict(row) for row in visited_results]
+    qresults = [dict(row) for row in question_results]
+    rresults = [dict(row) for row in review_results]
+    # 'UserVisitedResults': vresults,
+    result_dict = {'LocationResults': lresults, 'QuestionResults': qresults, 'ReviewResults': rresults}
+    return jsonify(result_dict)
+
+@app.route('/UserVisitedRange', methods=['GET'])
+def UserVisited_Range():
+    days = request.args.get('days')
+    query_results = dbase.UserVisited_Range(days)
+    results = [dict(row) for row in query_results]
+    result_dict = {'results': results}
+    return jsonify(result_dict)
+
+
+@app.route('/LocationID', methods=['GET'])
+def getLocationId():
+    name = request.args.get('name')
+    query_results = dbase.get_LocationId(name)
+
+    results = [dict(row) for row in query_results]
+    print(results)
+    result_dict = {'results': results}
+    return jsonify(result_dict)

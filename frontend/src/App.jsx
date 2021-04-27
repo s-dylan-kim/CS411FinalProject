@@ -5,13 +5,13 @@ import React, { useState, useEffect } from 'react';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faVirusSlash, faVirus, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import Autosuggest from 'react-bootstrap-autosuggest';
 import { Navbar, Form, Table, Button, Modal } from "react-bootstrap";
 import Axios from 'axios';
 
 function App() {
   const [isHome, setIsHome] = useState(true); //using variable instead of router since only 2 pages
   const [location, setLocation] = useState("");
+  const [locationId, setLocationId] = useState("");
   const [locationPicker, setLocationPicker] = useState("");
   const [locationList, setLocationList] = useState([]);
   const [showLogin, setShowLogin] = useState(false)
@@ -69,8 +69,27 @@ function App() {
   }, []);
 
   useEffect(() => {
-    console.log(location)
+    Axios.get('http://localhost:5000/LocationID', {
+      params: {
+        name: location
+      }
+    }).then((response) => {
+      setLocationId(response.data.results[0].id)
+    })
   }, [location]);
+
+  useEffect(() => {
+    Axios.get('http://localhost:5000/getLocationData', {
+      params: {
+        id: locationId
+      }
+    }).then((response) => {
+      setLongitude(response.data.LocationResults[0].longitude)
+      setLatitude(response.data.LocationResults[0].latitude)
+      setQuestions(response.data.questionResults)
+      setQuestions(response.data.reviewResults)
+    })
+  }, [locationId])
 
   const updateDateRange = (e) => {
     setDateSlider(100-e.target.value)
@@ -89,17 +108,15 @@ function App() {
     console.log(event.target.username.value)
     console.log(event.target.password.value)
     
-    // Axios.post('http://localhost:5000/login', {
-    //   data: {
-    //     username: event.target.username.value,
-    //     password: event.target.password.value
-    //   }
-    // }).then((response) => {
-    //   setUsername(event.target.username.value)
-    //   setPassword(event.target.password.value)
-    //   setSignedIn(true)
-    //   handleCloseLogin();
-    // })
+    Axios.post('http://localhost:5000/login', {
+      username: event.target.username.value,
+      password: event.target.password.value
+    }).then((response) => {
+      setUsername(event.target.username.value)
+      setPassword(event.target.password.value)
+      setSignedIn(true)
+      handleCloseLogin();
+    })
   }
 
   const signup = (event) => {
@@ -110,11 +127,9 @@ function App() {
     handleCloseSignup();
 
     // Axios.post('http://localhost:5000/signup', {
-    //   data: {
-    //     username: event.target.username.value,
-    //     password: event.target.password.value,
-    //     name: event.target.name.value
-    //   }
+    //   username: event.target.username.value,
+    //   password: event.target.password.value,
+    //   name: event.target.name.value
     // }).then((response) => {
     //   setUsername(event.target.username.value)
     //   setPassword(event.target.password.value)
@@ -149,7 +164,7 @@ function App() {
     //     username: username,
     //     password: password,
     //     location: location,
-    //     question: curQuestionId,
+    //     questionId: curQuestionId,
     //     answer: event.target.answer.value
     //   }
     // }).then((response) => {
