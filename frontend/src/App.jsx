@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faVirusSlash, faVirus, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import { Navbar, Form, Table, Button, Modal } from "react-bootstrap";
+import { ListGroup, Container, Row, Col, Navbar, Form, Table, Button, Modal } from "react-bootstrap";
 import Axios from 'axios';
 
 function App() {
@@ -25,6 +25,8 @@ function App() {
   const [categories, setCategories] = useState(["hello", "test2"]);
   const [longitude, setLongitude] = useState(0);
   const [latitude, setLatitude] = useState(0);
+  const [covidCount, setCovidCount] = useState(0);
+  const [unCovidCount,setUnCovidCount] = useState(0);
   const [questions, setQuestions] = useState([]);
   const [reviews, setReviews] = useState([]);
   const [dateSlider, setDateSlider] = useState(50);
@@ -80,20 +82,47 @@ function App() {
   }, [location]);
 
   useEffect(() => {
-    Axios.get('http://localhost:5000/getLocationData', {
-      params: {
-        id: locationId
-      }
-    }).then((response) => {
-      setLongitude(response.data.LocationResults[0].longitude)
-      setLatitude(response.data.LocationResults[0].latitude)
-      setQuestions(response.data.questionResults)
-      setReviews(response.data.reviewResults)
-    })
+    if (locationId != "")
+      Axios.get('http://localhost:5000/getLocationData', {
+        params: {
+          id: locationId
+        }
+      }).then((response) => {
+        console.log(response)
+        setLongitude(response.data.LocationResults[0].longitude)
+        setLatitude(response.data.LocationResults[0].latitude)
+        setQuestions(response.data.QuestionResults)
+        setReviews(response.data.ReviewResults)
+        updateCovidVisited()
+      })
   }, [locationId])
+
+  useEffect(() => {
+    if (locationId != "")
+      updateCovidVisited()
+  }, [dateSlider])
 
   const updateDateRange = (e) => {
     setDateSlider(100-e.target.value)
+  }
+
+  const updateCovidVisited = () => {
+    Axios.get('http://localhost:5000/UserVisitedRange', {
+      params: {
+        days: dateSlider,
+        locationID: locationId
+      }
+    }).then((response) => {
+      if (response.data.results[0].covid == null)
+        setCovidCount(0)
+      else
+        setCovidCount(response.data.results[0].covid)
+      
+      if (response.data.results[0].notCovid == null)
+        setUnCovidCount(0)
+      else
+        setUnCovidCount(response.data.results[0].notCovid)
+    })
   }
 
   const changeLocation = (locations) => {
@@ -247,19 +276,55 @@ function App() {
           selected={locationPicker}
         />
         :
-        <React.Fragment>
+        <Container>
+          <Row>
           <h1>{ location }</h1>
+          </Row>
+          <Row>
           <p>Categories: {
             categories.map(x => x + " ")
           }</p>
+          </Row>
+          <Row>
           <p>{longitude}, {latitude}</p>
+          </Row>
+          <Row>
           <Form.Control type="range" onChange={updateDateRange}/>
+          </Row>
+          <Row>
           <p>Last { dateSlider } days</p>
+          </Row>
+          <Row>
+          <p>Covid Visited: { covidCount }, not Covid Visited: { unCovidCount }</p>
+          </Row>
+          <Row>
           <Button variant="primary" onClick={() => setShowVisit(true)}>
             Add a Visit
           </Button>
-
-        </React.Fragment>
+          </Row>
+          <Row>
+            <Col>
+              Questions
+              <ListGroup>
+                {
+                  questions.map((item, i) => (
+                    <ListGroup.Item key={i}>{item.question}</ListGroup.Item>
+                  ))
+                }
+              </ListGroup>
+            </Col>
+            <Col>
+              Reviews
+              <ListGroup>
+                {
+                  reviews.map((item, i) => (
+                    <ListGroup.Item key={i}>{item.review}</ListGroup.Item>
+                  ))
+                }
+              </ListGroup>
+            </Col>
+          </Row>
+        </Container>
       }
 
       {/* Log In */}

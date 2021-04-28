@@ -213,11 +213,11 @@ def get_Categories(locationID:int):
     conn.close()
     return query_results
 
-def UserVisited_Range(num:int):
+def UserVisited_Range(num:int, locationID:int):
     date = datetime.now() - timedelta(int(num))
     pastdate = date.strftime("%Y-%m-%d %H:%M:%S")
     conn = db.connect()
-    query = "SELECT * FROM UserVisited WHERE time > '" + pastdate + "'"
+    query = "SELECT sum(hasCOVID = 1) as covid, sum(hasCOVID = 0) as notCovid FROM UserVisited WHERE time > '" + pastdate + "' AND locationID = " + locationID
     query_results = conn.execute(query)
     conn.close()
     return query_results

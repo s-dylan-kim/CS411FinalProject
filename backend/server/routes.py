@@ -476,7 +476,8 @@ def get_Location_Data():
 @app.route('/UserVisitedRange', methods=['GET'])
 def UserVisited_Range():
     days = request.args.get('days')
-    query_results = dbase.UserVisited_Range(days)
+    location = request.args.get('locationID')
+    query_results = dbase.UserVisited_Range(days, location)
     results = [dict(row) for row in query_results]
     result_dict = {'results': results}
     return jsonify(result_dict)
@@ -485,6 +486,9 @@ def UserVisited_Range():
 @app.route('/LocationID', methods=['GET'])
 def getLocationId():
     name = request.args.get('name')
+    insertLoc = name.find("'")
+    if insertLoc != -1:
+        name = name[:insertLoc] + "'" + name[insertLoc:]
     query_results = dbase.get_LocationId(name)
 
     results = [dict(row) for row in query_results]
