@@ -463,12 +463,14 @@ def get_Location_Data():
     # visited_results = dbase.get_UserVisited(locationID)
     question_results = dbase.get_Questions(locationID)
     review_results = dbase.get_Reviews(locationID)
+    category_results = dbase.get_Categories(locationID)
     lresults = [dict(row) for row in location_results]
     # vresults = [dict(row) for row in visited_results]
     qresults = [dict(row) for row in question_results]
     rresults = [dict(row) for row in review_results]
+    cresults = [dict(row) for row in category_results]
     # 'UserVisitedResults': vresults,
-    result_dict = {'LocationResults': lresults, 'QuestionResults': qresults, 'ReviewResults': rresults}
+    result_dict = {'LocationResults': lresults, 'QuestionResults': qresults, 'ReviewResults': rresults, 'CategoryResults': cresults}
     return jsonify(result_dict)
 
 @app.route('/UserVisitedRange', methods=['GET'])

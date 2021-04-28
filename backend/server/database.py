@@ -206,6 +206,13 @@ def get_Reviews(locationID:int):
     conn.close()
     return query_results
 
+def get_Categories(locationID:int):
+    conn = db.connect()
+    query = 'SELECT * FROM Categories WHERE id = ANY(SELECT categoryID FROM LocationOfType WHERE locationID = ' + locationID + ')' 
+    query_results = conn.execute(query)
+    conn.close()
+    return query_results
+
 def UserVisited_Range(num:int):
     date = datetime.now() - timedelta(int(num))
     pastdate = date.strftime("%Y-%m-%d %H:%M:%S")
