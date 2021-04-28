@@ -312,12 +312,12 @@ def restaurantHoursVisited():
 # /signup returns {"isSuccessful": 1, "userId":#}
 # Example: http://127.0.0.1:5000/signup?username=James3&password=oDCbQMlLoi&name=James
 # Output: {"isSuccessful": 1, "userId":#} "userId" is the userID
-@app.route('/signup', methods=['GET'])
+@app.route('/signup', methods=['POST'])
 def signup():
-    username = str(request.args.get('username'))
-    password = str(request.args.get('password'))
-    name = str(request.args.get('name'))
-    hasCovid = str(request.args.get('hasCovid'))
+    dataJSON = request.get_json()
+    username = str(dataJSON['username'])
+    password = str(dataJSON['password'])
+    name = str(dataJSON['name'])
     conn = db.connect()
     query1 = 'INSERT INTO Users (name, username, password) VALUES ("{}", "{}", "{}")'.format(name, username, password)
     conn.execute(query1)
@@ -328,7 +328,11 @@ def signup():
     query_results = conn.execute(query)
     conn.close()
 
-    results = [dict(row) for row in query_results]
+    results = []
+
+    for row in query_results:
+        results.append(dict(row))
+
     result_dict = {'results': results}
     if (len(results) == 0):
         return dict({"isSuccessful": 0,"userId": -1})
@@ -337,17 +341,22 @@ def signup():
 # /login returns {"isSuccessful": 1, "userId":#} if correct password and username, {"isSuccessful": 0, "userId": -1} otherwise
 # Example: http://127.0.0.1:5000/login?username=James3&password=oDCbQMlLoi
 # Output: {"isSuccessful": 1, "userId":#} "userId" is the userID
-@app.route('/login', methods=['GET'])
+@app.route('/login', methods=['POST'])
 def login():
-    arg1 = str(request.args.get('username'))
-    arg2 = str(request.args.get('password'))
+    dataJSON = request.get_json()
+    arg1 = str(dataJSON['username'])
+    arg2 = str(dataJSON['password'])
     conn = db.connect()
-    query = "SELECT COUNT(*) AS isSuccessful, id AS userId FROM Users WHERE username = '{}' AND password = '{}' GROUP BY id;".format(arg1, arg2)
+    query = "SELECT COUNT(*) AS isSuccessful, id AS userId FROM Users WHERE username = '{}' AND password = '{}' GROUP BY id".format(arg1, arg2)
     query_results = conn.execute(query)
     conn.close()
 
-    results = [dict(row) for row in query_results]
-    result_dict = {'results': results}
+    results = []
+
+    for row in query_results:
+        results.append(dict(row))
+
+    # results = [dict(row) for row in query_results]
     if (len(results) == 0):
         return dict({"isSuccessful": 0,"userId": -1})
     return results[0]
@@ -355,16 +364,17 @@ def login():
 # /ask returns 1 if correct password and username and successful insert into Questions, 0 otherwise
 # Example: http://127.0.0.1:5000/ask?username=James3&password=oDCbQMlLoi&userId=10&locationId=2&question=blahblah
 # Output: {"isSuccessful":1} or {"isSuccessful":0}
-@app.route('/ask', methods=['GET'])
+@app.route('/ask', methods=['POST'])
 def addQuestion():
-    username = str(request.args.get('username'))
-    password = str(request.args.get('password'))
+    dataJSON = request.get_json()
+    username = str(dataJSON['username'])
+    password = str(dataJSON['password'])
     if(dbase.userNotInDatabase(username, password)):
         return dict({"isSuccessful": 0})
     
-    locationId = str(request.args.get('locationId'))
-    question = str(request.args.get('question'))
-    userId = str(request.args.get('userId'))
+    locationId = str(dataJSON['locationId'])
+    question = str(dataJSON['question'])
+    userId = str(dataJSON['userId'])
 
     conn = db.connect()
     query1 = 'INSERT INTO Questions (question, userId, locationId) VALUES ("{}", "{}", "{}")'.format(question, userId, locationId)
@@ -376,16 +386,17 @@ def addQuestion():
 # /answer returns 1 if correct password and username and successful insert into Answers, 0 otherwise
 # Example: http://127.0.0.1:5000/answer?username=James3&password=oDCbQMlLoi&userId=10&questionId=1&answer=bla
 # Output: {"isSuccessful":1} or {"isSuccessful":0}
-@app.route('/answer', methods=['GET'])
+@app.route('/answer', methods=['POST'])
 def answer():
-    username = str(request.args.get('username'))
-    password = str(request.args.get('password'))
+    dataJSON = request.get_json()
+    username = str(dataJSON['username'])
+    password = str(dataJSON['password'])
     if(dbase.userNotInDatabase(username, password)):
         return dict({"isSuccessful": 0})
     
-    userId = str(request.args.get('userId'))
-    questionId = str(request.args.get('questionId'))
-    answer = str(request.args.get('answer'))
+    userId = str(dataJSON['userId'])
+    questionId = str(dataJSON['questionId'])
+    answer = str(dataJSON['answer'])
     conn = db.connect()
     query1 = 'INSERT INTO Answers (answer, questionID, userID) VALUES ("{}", "{}", "{}")'.format(answer, questionId, userId)
     conn.execute(query1)
@@ -395,17 +406,18 @@ def answer():
 # /review returns 1 if correct password and username and successful insert into Reviews, 0 otherwise
 # Example: http://127.0.0.1:5000/review?username=James3&password=oDCbQMlLoi&userId=10&locationId=1&review=bladyblah&rating=5
 # Output: {"isSuccessful":1} or {"isSuccessful":0}
-@app.route('/review', methods=['GET'])
+@app.route('/review', methods=['POST'])
 def review():
-    username = str(request.args.get('username'))
-    password = str(request.args.get('password'))
+    dataJSON = request.get_json()
+    username = str(dataJSON['username'])
+    password = str(dataJSON['password'])
     if(dbase.userNotInDatabase(username, password)):
         return dict({"isSuccessful": 0})
     
-    userId = str(request.args.get('userId'))
-    locationId = str(request.args.get('locationId'))
-    review = str(request.args.get('review'))
-    rating = str(request.args.get('rating'))
+    userId = str(dataJSON['userId'])
+    locationId = str(dataJSON['locationId'])
+    review = str(dataJSON['review'])
+    rating = str(dataJSON['rating'])
     conn = db.connect()
     query1 = 'INSERT INTO Reviews (rating, userID, locationID, review) VALUES ("{}", "{}", "{}", "{}")'.format(rating, userId, locationId, review)
     conn.execute(query1)
@@ -415,17 +427,23 @@ def review():
 # /visit returns 1 if correct password and username and successful insert into Reviews, 0 otherwise
 # Example: http://127.0.0.1:5000/visit?username=James3&password=oDCbQMlLoi&userId=10&locationId=1&date=98089&hasCovid=0
 # Output: {"isSuccessful":1} or {"isSuccessful":0}
-@app.route('/visit', methods=['GET'])
+@app.route('/visit', methods=['POST'])
 def visit():
-    username = str(request.args.get('username'))
-    password = str(request.args.get('password'))
+    dataJSON = request.get_json()
+    username = str(dataJSON['username'])
+    password = str(dataJSON['password'])
+
     if(dbase.userNotInDatabase(username, password)):
         return dict({"isSuccessful": 0})
     
-    userId = str(request.args.get('userId'))
-    locationId = str(request.args.get('locationId'))
-    date = str(request.args.get('date'))
-    hasCovid = str(request.args.get('hasCovid'))
+    userId = str(dataJSON['userId'])
+    locationId = str(dataJSON['locationId'])
+    date = str(dataJSON['date'])
+    hasCovid = str(dataJSON['hasCovid'])
+    if hasCovid=="Yes":
+        hasCovid=1
+    else:
+        hasCovid=0
     conn = db.connect()
     query1 = 'INSERT INTO UserVisited (userID, locationID, time, hasCOVID) VALUES ("{}", "{}", "{}", "{}")'.format(userId, locationId, date, hasCovid)
     conn.execute(query1)
@@ -473,6 +491,22 @@ def get_Location_Data():
     result_dict = {'LocationResults': lresults, 'QuestionResults': qresults, 'ReviewResults': rresults, 'CategoryResults': cresults}
     return jsonify(result_dict)
 
+@app.route('/updateQuestions', methods=['GET'])
+def get_Question_Data():
+    locationID = request.args.get('id')
+    question_results = dbase.get_Questions(locationID)
+    qresults = [dict(row) for row in question_results]
+    result_dict = {'QuestionResults': qresults}
+    return jsonify(result_dict)
+
+@app.route('/updateReviews', methods=['GET'])
+def get_Review_Data():
+    locationID = request.args.get('id')
+    review_results = dbase.get_Reviews(locationID)
+    rresults = [dict(row) for row in review_results]
+    result_dict = {'ReviewResults': rresults}
+    return jsonify(result_dict)
+
 @app.route('/UserVisitedRange', methods=['GET'])
 def UserVisited_Range():
     days = request.args.get('days')
@@ -492,6 +526,5 @@ def getLocationId():
     query_results = dbase.get_LocationId(name)
 
     results = [dict(row) for row in query_results]
-    print(results)
     result_dict = {'results': results}
     return jsonify(result_dict)

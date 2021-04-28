@@ -33,8 +33,10 @@ function App() {
   const [signedIn, setSignedIn] = useState(false);
   const [curQuestionId, setCurQuestionId] = useState(0);
   const [curQuestion, setCurQuestion] = useState("");
+  const [answers, setAnswers] = useState([]);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [userId, setUserId] = useState(0);
 
   const handleCloseLogin = () => {
     setShowLogin(false);
@@ -82,7 +84,7 @@ function App() {
   }, [location]);
 
   useEffect(() => {
-    if (locationId != "")
+    if (locationId !== "")
       Axios.get('http://localhost:5000/getLocationData', {
         params: {
           id: locationId
@@ -93,18 +95,29 @@ function App() {
         setLatitude(response.data.LocationResults[0].latitude)
         setQuestions(response.data.QuestionResults)
         setReviews(response.data.ReviewResults)
+        setCategories(response.data.CategoryResults.map(i => i.name))
         updateCovidVisited()
       })
   }, [locationId])
 
   useEffect(() => {
-    if (locationId != "")
+    if (locationId !== "")
       updateCovidVisited()
-  }, [dateSlider])
+  }, [dateSlider, locationId])
 
   const updateDateRange = (e) => {
     setDateSlider(100-e.target.value)
   }
+
+  useEffect(() => {
+    Axios.get('http://localhost:5000/getAnswers', {
+      params: {
+        questionID: curQuestionId
+      }
+    }).then((response) => {
+      setAnswers(response.data.results)
+    })
+  }, [curQuestionId])
 
   const updateCovidVisited = () => {
     Axios.get('http://localhost:5000/UserVisitedRange', {
@@ -127,7 +140,7 @@ function App() {
 
   const changeLocation = (locations) => {
     setLocationPicker(locations)
-    if(locations.length != 0) {
+    if(locations.length !== 0) {
       setIsHome(false)
       setLocation(locations[0])
     }
@@ -135,71 +148,86 @@ function App() {
 
   const login = (event) => {
     event.preventDefault();
-    console.log(event.target.username.value)
-    console.log(event.target.password.value)
     
     Axios.post('http://localhost:5000/login', {
       username: event.target.username.value,
       password: event.target.password.value
     }).then((response) => {
-      setUsername(event.target.username.value)
-      setPassword(event.target.password.value)
-      setSignedIn(true)
-      handleCloseLogin();
+      console.log(response)
+      if (response.data.isSuccessful === 1) {
+        setUserId(response.data.userId)
+        setUsername(event.target.username.value)
+        setPassword(event.target.password.value)
+        setSignedIn(true)
+        handleCloseLogin()
+      }
     })
   }
 
   const signup = (event) => {
     event.preventDefault();
-    console.log(event.target.username.value)
-    console.log(event.target.password.value)
-    console.log(event.target.password.name)
     handleCloseSignup();
 
-    // Axios.post('http://localhost:5000/signup', {
-    //   username: event.target.username.value,
-    //   password: event.target.password.value,
-    //   name: event.target.name.value
-    // }).then((response) => {
-    //   setUsername(event.target.username.value)
-    //   setPassword(event.target.password.value)
-    //   setSignedIn(true)
-    // })
+    Axios.post('http://localhost:5000/signup', {
+      username: event.target.username.value,
+      password: event.target.password.value,
+      name: event.target.name.value
+    }).then((response) => {
+      if (response.data.isSuccessful === 1) {
+        setUserId(response.data.userId)
+        setUsername(event.target.username.value)
+        setPassword(event.target.password.value)
+        setSignedIn(true)
+        handleCloseSignup()
+      }
+    })
   }
 
   const ask = (event) => {
     event.preventDefault();
     console.log(event.target.question.value)
 
-    // Axios.post('http://localhost:5000/ask', {
-    //   data: {
-    //     username: username,
-    //     password: password,
-    //     location: location,
-    //     question: event.target.question.value,
-    //   }
-    // }).then((response) => {
-    //   handleCloseQuestion()
-    //   update somehow
-    // })
+    Axios.post('http://localhost:5000/ask', {
+      username: username,
+      userId: userId,
+      password: password,
+      locationId: locationId,
+      question: event.target.question.value,
+    }).then((response) => {
+      if (response.data.isSuccessful === 1) {
+        handleCloseAsk()
+        Axios.get('http://localhost:5000/updateQuestions', {
+          params: {
+            id: locationId
+          }
+        }).then((response) => {
+          setQuestions(response.data.QuestionResults)
+        })
+      }
+    })
   }
 
   const answer = (event) => {
     event.preventDefault();
-    console.log(event.target.answer.value)
-    handleCloseQuestion();
 
-    // Axios.post('http://localhost:5000/answer', {
-    //   data: {
-    //     username: username,
-    //     password: password,
-    //     location: location,
-    //     questionId: curQuestionId,
-    //     answer: event.target.answer.value
-    //   }
-    // }).then((response) => {
-    //   handleCloseAnswer()
-    // })
+    Axios.post('http://localhost:5000/answer', {
+      username: username,
+      password: password,
+      userId: userId,
+      questionId: curQuestionId,
+      answer: event.target.answer.value
+    }).then((response) => {
+      if (response.data.isSuccessful === 1) {
+        handleCloseAnswer()
+        Axios.get('http://localhost:5000/getAnswers', {
+          params: {
+            questionID: curQuestionId
+          }
+        }).then((response) => {
+          setAnswers(response.data.results)
+        })
+      }
+    })
   }
 
   const review = (event) => {
@@ -207,18 +235,25 @@ function App() {
     console.log(event.target.score.value)
     console.log(event.target.review.value)
 
-    // Axios.post('http://localhost:5000/review', {
-    //   data: {
-    //     username: username,
-    //     password: password,
-    //     location: location,
-    //     score: event.target.score.value,
-    //     review: event.target.review.value
-    //   }
-    // }).then((response) => {
-    //   handleCloseReview()
-    //   update somehow
-    // })
+    Axios.post('http://localhost:5000/review', {
+      username: username,
+      password: password,
+      userId: userId,
+      locationId: locationId,
+      rating: event.target.score.value,
+      review: event.target.review.value
+    }).then((response) => {
+      if (response.data.isSuccessful === 1) {
+        handleCloseReview()
+        Axios.get('http://localhost:5000/updateReviews', {
+          params: {
+            id: locationId
+          }
+        }).then((response) => {
+          setReviews(response.data.ReviewResults)
+        })
+      }
+    })
   }
 
   const visit = (event) => {
@@ -226,18 +261,30 @@ function App() {
     console.log(event.target.date.value)
     console.log(event.target.hasCovid.value)
 
-    // Axios.post('http://localhost:5000/visit', {
-    //   data: {
-    //     username: username,
-    //     password: password,
-    //     location: location,
-    //     date: event.target.date.value,
-    //     hasCovid: event.target.hasCovid.value
-    //   }
-    // }).then((response) => {
-    //   handleCloseReview()
-    //   update somehow
-    // })
+    Axios.post('http://localhost:5000/visit', {
+      username: username,
+      userId: userId,
+      password: password,
+      locationId: locationId,
+      date: event.target.date.value,
+      hasCovid: event.target.hasCovid.value
+    }).then((response) => {
+      if(response.data.isSuccessful === 1) {
+        handleCloseShowVisit()
+        updateCovidVisited()
+      }
+    })
+  }
+
+  const chooseQuestion = (id, question) => {
+    setCurQuestion(question)
+    setCurQuestionId(id)
+    setShowQuestion(true)
+  }
+
+  const showAnswerModal = () => {
+    setShowQuestion(false)
+    setShowAnswer(true)
   }
 
   return (
@@ -251,7 +298,7 @@ function App() {
         <Navbar.Brand>Covid Tracker</Navbar.Brand>
         <Navbar.Collapse className="justify-content-end">
           {signedIn ?
-            <Navbar.Text>
+            <Navbar.Text onClick={() => setSignedIn(false)}>
               Sign Out
             </Navbar.Text>
           :
@@ -297,19 +344,24 @@ function App() {
           <Row>
           <p>Covid Visited: { covidCount }, not Covid Visited: { unCovidCount }</p>
           </Row>
-          <Row>
-          <Button variant="primary" onClick={() => setShowVisit(true)}>
-            Add a Visit
-          </Button>
-          </Row>
+          {signedIn &&
+            <Row>
+            <Button variant="primary" onClick={() => setShowVisit(true)}>
+              Add a Visit
+            </Button>
+            </Row>
+          }
           <Row>
             <Col>
               Questions
               <ListGroup>
                 {
                   questions.map((item, i) => (
-                    <ListGroup.Item key={i}>{item.question}</ListGroup.Item>
+                    <ListGroup.Item key={i} onClick={() => chooseQuestion(item.id, item.question)}>{item.question}</ListGroup.Item>
                   ))
+                }
+                {signedIn &&
+                  <Button onClick={() => setShowAsk(true)}>Leave a Question</Button>
                 }
               </ListGroup>
             </Col>
@@ -318,8 +370,11 @@ function App() {
               <ListGroup>
                 {
                   reviews.map((item, i) => (
-                    <ListGroup.Item key={i}>{item.review}</ListGroup.Item>
+                    <ListGroup.Item key={i}>{item.rating}/10: {item.review}</ListGroup.Item>
                   ))
+                }
+                {signedIn &&
+                  <Button onClick={() => setShowReview(true)}>Leave a Review</Button>
                 }
               </ListGroup>
             </Col>
@@ -405,20 +460,29 @@ function App() {
       {/* Question Modal */}
       <Modal show={showQuestion} onHide={handleCloseQuestion}>
         <Modal.Header closeButton>
-          <Modal.Title>"Question Name"</Modal.Title>
+          <Modal.Title>{curQuestion}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-            Question Data
-            <Button variant="primary">
-              Answer
+          {
+            answers.map((item, i) => (
+              <ListGroup.Item key={i}>{item.answer}</ListGroup.Item>
+            ))
+          }
+          {signedIn &&
+            <Button variant="primary" onClick={showAnswerModal}>
+              Leave an Answer
             </Button>
+          }
+          <Button variant="secondary" onClick={handleCloseQuestion}>
+            Cancel
+          </Button>
         </Modal.Body>
       </Modal>
 
       {/* Answer */}
       <Modal show={showAnswer} onHide={handleCloseAnswer}>
         <Modal.Header closeButton>
-          <Modal.Title>"Question Name"</Modal.Title>
+          <Modal.Title>{curQuestion}</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={answer}>
