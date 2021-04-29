@@ -1,3 +1,4 @@
+import firebase from "firebase/app";
 import './App.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
@@ -79,14 +80,41 @@ function App() {
       setIsHome(true)
     })
 
-    Axios.get(server_path + '/getLocationsLeastRisk').then((response) => {
-      setLeastVisitedNum(response.data.results[0].numInfectedVisited)
-      setLeastVisited(response.data.results[0].locationName)
-    })
+    Axios.get(server_path + '/getLocationStatistics').then((response) => {
+      console.log(response)
+      var mostVisit;
+      var leastVisit;
+      var review;
+      
+      var prevIndex = -1;
 
-    Axios.get(server_path + '/getLocationsMostRisk').then((response) => {
-      setMostVisitedNum(response.data.results[0].numInfectedVisited)
-      setMostVisited(response.data.results[0].locationName)
+      for(var i = 0; i < response.data.results.length; i++) {
+        if(response.data.results[i].highestRating != null) {
+          review = i;
+        } else {
+          if (prevIndex == -1) {
+            console.log("changed")
+            prevIndex = i; 
+          } else {
+            if (response.data.results[i].numInfectedVisited > response.data.results[prevIndex].numInfectedVisited) {
+              mostVisit = i;
+              leastVisit = prevIndex;
+            } else {
+              mostVisit = prevIndex;
+              leastVisit = i;
+            }
+          }
+        }
+      }
+
+      setLeastVisitedNum(response.data.results[leastVisit].numInfectedVisited)
+      setLeastVisited(response.data.results[leastVisit].locationName)
+
+      setMostVisitedNum(response.data.results[mostVisit].numInfectedVisited)
+      setMostVisited(response.data.results[mostVisit].locationName)
+
+      setBestReviewedScore(response.data.results[review].highestRating)
+      setBestReviewed(response.data.results[review].locationName)
     })
   }, []);
 
@@ -347,13 +375,13 @@ function App() {
             <Jumbotron id = "statJumbotron">
               <h1 id="statsTitle">Locations at a Glance</h1>
               <p>
-                Most Visited: {}
+                <b>Most Visited with Covid:</b> {mostVisited}, {mostVisitedNum} visits
               </p>
               <p>
-                Least Visited: {}
+                <b>Least Visited with Covid:</b> {leastVisited}, {leastVisitedNum} visits
               </p>
               <p>
-                Best Reviewed: {}
+                <b>Best Reviewed:</b> {bestReviewed}, {bestReviewedScore}/10
               </p> 
             </Jumbotron>
           </div>

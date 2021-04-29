@@ -518,5 +518,7 @@ def getLocationStatistics():
     conn = db.connect()
     query = "SELECT * FROM LocationStatistics;"
     query_results = conn.execute(query)
+
+    results = [dict(row) for row in query_results]
     result_dict = {'results': results}
     return jsonify(result_dict)
