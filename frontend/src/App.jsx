@@ -4,15 +4,17 @@ import 'react-bootstrap-typeahead/css/Typeahead.css';
 import React, { useState, useEffect } from 'react';
 import { Typeahead } from 'react-bootstrap-typeahead';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faVirusSlash, faVirus, faArrowLeft } from '@fortawesome/free-solid-svg-icons'
-import { ListGroup, Container, Row, Col, Navbar, Form, Table, Button, Modal } from "react-bootstrap";
+import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
+import { Jumbotron, ListGroup, Container, Row, Col, Navbar, Form, Button, Modal } from "react-bootstrap";
 import Axios from 'axios';
+
+const server_path = "http://localhost:5000"
 
 function App() {
   const [isHome, setIsHome] = useState(true); //using variable instead of router since only 2 pages
   const [location, setLocation] = useState("");
   const [locationId, setLocationId] = useState("");
-  const [locationPicker, setLocationPicker] = useState("");
+  const [locationPicker, setLocationPicker] = useState([]);
   const [locationList, setLocationList] = useState([]);
   const [showLogin, setShowLogin] = useState(false)
   const [showSignup, setShowSignup] = useState(false)
@@ -21,8 +23,14 @@ function App() {
   const [showAnswer, setShowAnswer] = useState(false)
   const [showReview, setShowReview] = useState(false)
   const [showVisit, setShowVisit] = useState(false)
+  const [mostVisited, setMostVisited] = useState("")
+  const [mostVisitedNum, setMostVisitedNum] = useState(0)
+  const [leastVisited, setLeastVisited] = useState("")
+  const [leastVisitedNum, setLeastVisitedNum] = useState(0)
+  const [bestReviewed, setBestReviewed] = useState("")
+  const [bestReviewedScore, setBestReviewedScore] = useState(0)
 
-  const [categories, setCategories] = useState(["hello", "test2"]);
+  const [categories, setCategories] = useState([]);
   const [longitude, setLongitude] = useState(0);
   const [latitude, setLatitude] = useState(0);
   const [covidCount, setCovidCount] = useState(0);
@@ -61,7 +69,7 @@ function App() {
   }
 
   useEffect(() => {
-    Axios.get('http://localhost:5000/getTableData', {
+    Axios.get(server_path + '/getTableData', {
       params: {
         table: "Locations"
       }
@@ -70,10 +78,20 @@ function App() {
       console.log("fetched locations")
       setIsHome(true)
     })
+
+    Axios.get(server_path + '/getLocationsLeastRisk').then((response) => {
+      setLeastVisitedNum(response.data.results[0].numInfectedVisited)
+      setLeastVisited(response.data.results[0].locationName)
+    })
+
+    Axios.get(server_path + '/getLocationsMostRisk').then((response) => {
+      setMostVisitedNum(response.data.results[0].numInfectedVisited)
+      setMostVisited(response.data.results[0].locationName)
+    })
   }, []);
 
   useEffect(() => {
-    Axios.get('http://localhost:5000/LocationID', {
+    Axios.get(server_path + '/LocationID', {
       params: {
         name: location
       }
@@ -85,7 +103,7 @@ function App() {
 
   useEffect(() => {
     if (locationId !== "")
-      Axios.get('http://localhost:5000/getLocationData', {
+      Axios.get(server_path + '/getLocationData', {
         params: {
           id: locationId
         }
@@ -110,7 +128,7 @@ function App() {
   }
 
   useEffect(() => {
-    Axios.get('http://localhost:5000/getAnswers', {
+    Axios.get(server_path + '/getAnswers', {
       params: {
         questionID: curQuestionId
       }
@@ -120,7 +138,7 @@ function App() {
   }, [curQuestionId])
 
   const updateCovidVisited = () => {
-    Axios.get('http://localhost:5000/UserVisitedRange', {
+    Axios.get(server_path + '/UserVisitedRange', {
       params: {
         days: dateSlider,
         locationID: locationId
@@ -149,7 +167,7 @@ function App() {
   const login = (event) => {
     event.preventDefault();
     
-    Axios.post('http://localhost:5000/login', {
+    Axios.post(server_path + '/login', {
       username: event.target.username.value,
       password: event.target.password.value
     }).then((response) => {
@@ -168,7 +186,7 @@ function App() {
     event.preventDefault();
     handleCloseSignup();
 
-    Axios.post('http://localhost:5000/signup', {
+    Axios.post(server_path + '/signup', {
       username: event.target.username.value,
       password: event.target.password.value,
       name: event.target.name.value
@@ -187,7 +205,7 @@ function App() {
     event.preventDefault();
     console.log(event.target.question.value)
 
-    Axios.post('http://localhost:5000/ask', {
+    Axios.post(server_path + '/ask', {
       username: username,
       userId: userId,
       password: password,
@@ -196,7 +214,7 @@ function App() {
     }).then((response) => {
       if (response.data.isSuccessful === 1) {
         handleCloseAsk()
-        Axios.get('http://localhost:5000/updateQuestions', {
+        Axios.get(server_path + '/updateQuestions', {
           params: {
             id: locationId
           }
@@ -210,7 +228,7 @@ function App() {
   const answer = (event) => {
     event.preventDefault();
 
-    Axios.post('http://localhost:5000/answer', {
+    Axios.post(server_path + '/answer', {
       username: username,
       password: password,
       userId: userId,
@@ -219,7 +237,7 @@ function App() {
     }).then((response) => {
       if (response.data.isSuccessful === 1) {
         handleCloseAnswer()
-        Axios.get('http://localhost:5000/getAnswers', {
+        Axios.get(server_path + '/getAnswers', {
           params: {
             questionID: curQuestionId
           }
@@ -235,7 +253,7 @@ function App() {
     console.log(event.target.score.value)
     console.log(event.target.review.value)
 
-    Axios.post('http://localhost:5000/review', {
+    Axios.post(server_path + '/review', {
       username: username,
       password: password,
       userId: userId,
@@ -245,7 +263,7 @@ function App() {
     }).then((response) => {
       if (response.data.isSuccessful === 1) {
         handleCloseReview()
-        Axios.get('http://localhost:5000/updateReviews', {
+        Axios.get(server_path + '/updateReviews', {
           params: {
             id: locationId
           }
@@ -261,7 +279,7 @@ function App() {
     console.log(event.target.date.value)
     console.log(event.target.hasCovid.value)
 
-    Axios.post('http://localhost:5000/visit', {
+    Axios.post(server_path + '/visit', {
       username: username,
       userId: userId,
       password: password,
@@ -314,14 +332,32 @@ function App() {
         </Navbar.Collapse>
       </Navbar>
       {isHome ?
-        <Typeahead
-          id="locationPicker"
-          labelKey="name"
-          onChange={changeLocation}
-          options={locationList}
-          placeholder="Choose a Location..."
-          selected={locationPicker}
-        />
+        <div>
+          <div id="locationPickerWrapper">
+            <Typeahead
+              id="locationPicker"
+              labelKey="name"
+              onChange={changeLocation}
+              options={locationList}
+              placeholder="Choose a Location..."
+              selected={locationPicker}
+            />
+          </div>
+          <div id="jumbotronWrapper">
+            <Jumbotron id = "statJumbotron">
+              <h1 id="statsTitle">Locations at a Glance</h1>
+              <p>
+                Most Visited: {}
+              </p>
+              <p>
+                Least Visited: {}
+              </p>
+              <p>
+                Best Reviewed: {}
+              </p> 
+            </Jumbotron>
+          </div>
+        </div>
         :
         <Container>
           <Row>
@@ -342,13 +378,13 @@ function App() {
           <p>Last { dateSlider } days</p>
           </Row>
           <Row>
-          <p>Covid Visited: { covidCount }, not Covid Visited: { unCovidCount }</p>
+          <p>Positive Visits: { covidCount }, Negative Visits: { unCovidCount }</p>
           </Row>
           {signedIn &&
             <Row>
-            <Button variant="primary" onClick={() => setShowVisit(true)}>
-              Add a Visit
-            </Button>
+              <Button variant="primary" onClick={() => setShowVisit(true)}>
+                Add a Visit
+              </Button>
             </Row>
           }
           <Row>
@@ -397,7 +433,7 @@ function App() {
               <Form.Label>Password</Form.Label>
               <Form.Control type="text" name="password" placeholder="password"/>
             </Form.Group>
-            <Button variant="primary" type="submit">
+            <Button variant="primary" type="submit" className="submitForm">
               Submit
             </Button>
             <Button variant="secondary" onClick={handleCloseLogin}>
@@ -426,7 +462,7 @@ function App() {
               <Form.Label>Password</Form.Label>
               <Form.Control type="text" name="password" placeholder="password"/>
             </Form.Group>
-            <Button variant="primary" type="submit">
+            <Button variant="primary" type="submit" className="submitForm">
               Submit
             </Button>
             <Button variant="secondary" onClick={handleCloseLogin}>
@@ -447,7 +483,7 @@ function App() {
               <Form.Label>Question</Form.Label>
               <Form.Control type="textarea" rows={3} name="question" placeholder="question"/>
             </Form.Group>
-            <Button variant="primary" type="submit">
+            <Button variant="primary" type="submit" className="submitForm">
               Ask
             </Button>
             <Button variant="secondary" onClick={handleCloseAsk}>
@@ -469,7 +505,7 @@ function App() {
             ))
           }
           {signedIn &&
-            <Button variant="primary" onClick={showAnswerModal}>
+            <Button variant="primary" onClick={showAnswerModal} className="submitForm">
               Leave an Answer
             </Button>
           }
@@ -490,7 +526,7 @@ function App() {
               <Form.Label>Answer</Form.Label>
               <Form.Control type="text" name="answer" placeholder="answer"/>
             </Form.Group>
-            <Button variant="primary" type="submit">
+            <Button variant="primary" type="submit" className="submitForm">
               Submit
             </Button>
             <Button variant="secondary" onClick={handleCloseAnswer}>
@@ -515,7 +551,7 @@ function App() {
               <Form.Label>Review</Form.Label>
               <Form.Control type="textarea" rows={3} name="review" placeholder="review"/>
             </Form.Group>
-            <Button variant="primary" type="submit">
+            <Button variant="primary" type="submit" className="submitForm">
               Submit
             </Button>
             <Button variant="secondary" onClick={handleCloseReview}>
@@ -543,7 +579,7 @@ function App() {
                 <option>No</option>
               </Form.Control>
             </Form.Group>
-            <Button variant="primary" type="submit">
+            <Button variant="primary" type="submit" className="submitForm">
               Submit
             </Button>
             <Button variant="secondary" onClick={handleCloseShowVisit}>

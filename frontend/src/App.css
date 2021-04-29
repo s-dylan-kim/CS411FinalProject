@@ -7,10 +7,44 @@
   pointer-events: none;
 }
 
+.navbar-text {
+  padding: 0.5em;
+}
+
+#locationPickerWrapper {
+  padding-top: 30vh;
+  width: 70vw;
+  margin: auto;
+}
+
+#jumbotronWrapper {
+  width: 70vw;
+  margin:auto;
+  padding-top: 10vh;
+}
+
+#statJumbotron {
+  border-radius: 25px;
+  border-style: outset;
+}
+
+#statsTitle {
+  margin-bottom:1em;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
+}
+
+.btn {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.submitForm {
+  margin-right: 10px;
 }
 
 .App-header {
