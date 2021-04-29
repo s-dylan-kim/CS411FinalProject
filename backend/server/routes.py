@@ -450,27 +450,11 @@ def visit():
     conn.close()
     return dict({"isSuccessful": 1})
 
-@app.route('/getLocationsMostRisk', methods=['GET'])
-def getLocationsMostRisk():
-    conn = db.connect()
-    query = "SELECT * FROM LocationMostRisk;"
-    query_results = conn.execute(query)
-    result_dict = {'results': results}
-    return jsonify(result_dict)
-
 @app.route('/getAnswers', methods=['GET'])
 def get_Answers():
     questionID = request.args.get('questionID')
     query_results = dbase.get_Answers(questionID)
     results = [dict(row) for row in query_results]
-    result_dict = {'results': results}
-    return jsonify(result_dict)
-
-@app.route('/getLocationsLeastRisk', methods=['GET'])
-def getLocationsLeastRisk():
-    conn = db.connect()
-    query = "SELECT * FROM LocationLeastRisk;"
-    query_results = conn.execute(query)
     result_dict = {'results': results}
     return jsonify(result_dict)
 
@@ -526,5 +510,13 @@ def getLocationId():
     query_results = dbase.get_LocationId(name)
 
     results = [dict(row) for row in query_results]
+    result_dict = {'results': results}
+    return jsonify(result_dict)
+
+@app.route('/getLocationStatistics', methods=['GET'])
+def getLocationStatistics():
+    conn = db.connect()
+    query = "SELECT * FROM LocationStatistics;"
+    query_results = conn.execute(query)
     result_dict = {'results': results}
     return jsonify(result_dict)
