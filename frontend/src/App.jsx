@@ -9,7 +9,7 @@ import { faArrowLeft } from '@fortawesome/free-solid-svg-icons'
 import { Jumbotron, ListGroup, Container, Row, Col, Navbar, Form, Button, Modal } from "react-bootstrap";
 import Axios from 'axios';
 
-const server_path = "http://localhost:5000"
+const server_path = "https://cs411pleasegivea.uc.r.appspot.com"
 
 function App() {
   const [isHome, setIsHome] = useState(true); //using variable instead of router since only 2 pages

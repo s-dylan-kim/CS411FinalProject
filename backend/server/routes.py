@@ -24,6 +24,10 @@ from server import database as dbase
 #     result_dict = {'results': results}
 #     return result_dict
 
+@app.route('/test', methods=['GET'])
+def test():
+    return "works!"
+
 @app.route('/insertLocations', methods=['POST'])
 def insert_Locations():
     dataJSON = request.get_json()
