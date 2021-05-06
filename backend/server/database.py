@@ -73,14 +73,6 @@ def insert_Questions(_id:int, question:str, userId:int, locationId:int):
     query1 = 'INSERT INTO Questions (_id, question, userId, locationId) VALUES ("{}", "{}", "{}", "{}")'.format(_id, question, userId, locationId)
     conn.execute(query1)
     conn.close()
- 
-def delete(table, id: int) -> None:
-    """ removes from 'table' the entry that matches with 'id' """
-    conn = db.connect()
-    query = 'DELETE FROM ' + str(table) + ' WHERE id={};'.format(int(id))
-    conn.execute(query)
-    conn.close()
-
 
 def tableColumns(table):
     """Reads all tasks listed in the todo table
@@ -228,3 +220,32 @@ def get_LocationId(name:int):
     query_results = conn.execute(query)
     conn.close()
     return query_results
+
+def update(table:str, _id:int, text:str, userId:int, rating):
+    conn = db.connect()
+    if table == "Reviews":
+        query1 = 'UPDATE Reviews SET review = "{}", rating = "{}" WHERE id = {} and userID = {}'.format(text, rating, _id, userId)
+    else:
+        query1 = 'UPDATE Answers SET answer = "{}" WHERE id = {} and userId = {}'.format(text, _id, userId)
+    conn.execute(query1)
+    conn.close()
+
+def checkUser(id:int, username:str, password:str):
+    conn = db.connect()
+    query = "SELECT COUNT(*) AS C FROM Users WHERE username = '{}' AND password = '{}' AND id = {};".format(username, password, id)
+    query_results = conn.execute(query)
+    conn.close()
+    results = [dict(row) for row in query_results]
+    result_dict = {0: results}
+    # print(type(results[0]['C']))
+    return not bool(results[0]['C'])
+
+def delete(table, id: int, userId:int) -> None:
+    """ removes from 'table' the entry that matches with 'id' """
+    conn = db.connect()
+    if table == "Reviews":
+        query = 'DELETE FROM ' + str(table) + ' WHERE id={} AND userID={};'.format(int(id), int(userId))
+    else:
+        query = 'DELETE FROM ' + str(table) + ' WHERE id={} AND userId={};'.format(int(id), int(userId))
+    conn.execute(query)
+    conn.close()

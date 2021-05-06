@@ -24,6 +24,9 @@ function App() {
   const [showAnswer, setShowAnswer] = useState(false)
   const [showReview, setShowReview] = useState(false)
   const [showVisit, setShowVisit] = useState(false)
+  const [showEdit, setShowEdit] = useState(false)
+  const [editRating, setEditRating] = useState(0)
+
   const [mostVisited, setMostVisited] = useState("")
   const [mostVisitedNum, setMostVisitedNum] = useState(0)
   const [leastVisited, setLeastVisited] = useState("")
@@ -46,6 +49,9 @@ function App() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [userId, setUserId] = useState(0);
+  const [isReview, setIsReview] = useState(false)
+  const [editText, setEditText] = useState("")
+  const [curId, setId] = useState(0)
 
   const handleCloseLogin = () => {
     setShowLogin(false);
@@ -68,6 +74,9 @@ function App() {
   const handleCloseShowVisit = () => {
     setShowVisit(false);
   }
+  const handleCloseEdit = () => {
+    setShowEdit(false);
+  }
 
   useEffect(() => {
     Axios.get(server_path + '/getTableData', {
@@ -76,12 +85,10 @@ function App() {
       }
     }).then((response) => {
       setLocationList(response.data.results.map(x => x.name))
-      console.log("fetched locations")
       setIsHome(true)
     })
 
     Axios.get(server_path + '/getLocationStatistics').then((response) => {
-      console.log(response)
       var mostVisit;
       var leastVisit;
       var review;
@@ -93,7 +100,6 @@ function App() {
           review = i;
         } else {
           if (prevIndex == -1) {
-            console.log("changed")
             prevIndex = i; 
           } else {
             if (response.data.results[i].numInfectedVisited > response.data.results[prevIndex].numInfectedVisited) {
@@ -136,7 +142,6 @@ function App() {
           id: locationId
         }
       }).then((response) => {
-        console.log(response)
         setLongitude(response.data.LocationResults[0].longitude)
         setLatitude(response.data.LocationResults[0].latitude)
         setQuestions(response.data.QuestionResults)
@@ -199,7 +204,6 @@ function App() {
       username: event.target.username.value,
       password: event.target.password.value
     }).then((response) => {
-      console.log(response)
       if (response.data.isSuccessful === 1) {
         setUserId(response.data.userId)
         setUsername(event.target.username.value)
@@ -231,7 +235,6 @@ function App() {
 
   const ask = (event) => {
     event.preventDefault();
-    console.log(event.target.question.value)
 
     Axios.post(server_path + '/ask', {
       username: username,
@@ -278,8 +281,6 @@ function App() {
 
   const review = (event) => {
     event.preventDefault();
-    console.log(event.target.score.value)
-    console.log(event.target.review.value)
 
     Axios.post(server_path + '/review', {
       username: username,
@@ -304,8 +305,6 @@ function App() {
 
   const visit = (event) => {
     event.preventDefault();
-    console.log(event.target.date.value)
-    console.log(event.target.hasCovid.value)
 
     Axios.post(server_path + '/visit', {
       username: username,
@@ -322,6 +321,67 @@ function App() {
     })
   }
 
+  const remove = () => {
+    var table = isReview ? "Reviews" : "Answers"
+
+    Axios.delete(server_path + '/delete', {
+      data: {
+        username: username,
+        password: password,
+        userId: userId,
+        id: curId,
+        table: table
+      }
+    }).then((response) => {
+      handleCloseEdit()
+      Axios.get(server_path + '/updateReviews', {
+        params: {
+          id: locationId
+        }
+      }).then((response) => {
+        setReviews(response.data.ReviewResults)
+        handleCloseEdit()
+      })
+      Axios.get(server_path + '/getAnswers', {
+        params: {
+          questionID: curQuestionId
+        }
+      }).then((response) => {
+        setAnswers(response.data.results)
+      })
+    })
+  }
+
+  const edit = () => {
+    var table = isReview ? "Reviews" : "Answers"
+
+    Axios.post(server_path + '/update', {
+      username: username,
+      password: password,
+      userId: userId,
+      table: table,
+      id: curId,
+      text: editText,
+      rating: editRating
+    }).then((response) => {
+      handleCloseEdit()
+      Axios.get(server_path + '/updateReviews', {
+        params: {
+          id: locationId
+        }
+      }).then((response) => {
+        setReviews(response.data.ReviewResults)
+      })
+      Axios.get(server_path + '/getAnswers', {
+        params: {
+          questionID: curQuestionId
+        }
+      }).then((response) => {
+        setAnswers(response.data.results)
+      })
+    })
+  }
+
   const chooseQuestion = (id, question) => {
     setCurQuestion(question)
     setCurQuestionId(id)
@@ -331,6 +391,26 @@ function App() {
   const showAnswerModal = () => {
     setShowQuestion(false)
     setShowAnswer(true)
+  }
+
+  const changeAnswer = (item) => {
+    if(item.userId == userId) {
+      handleCloseQuestion()
+      setShowEdit(true)
+      setId(item.id)
+      setEditText(item.answer)
+      setIsReview(false)
+    }
+  }
+
+  const changeReview = (item) => {
+    if(item.userID == userId) {
+      setShowEdit(true)
+      setEditRating(item.rating)
+      setId(item.id)
+      setEditText(item.review)
+      setIsReview(true)
+    }
   }
 
   return (
@@ -421,7 +501,7 @@ function App() {
               <ListGroup>
                 {
                   questions.map((item, i) => (
-                    <ListGroup.Item key={i} onClick={() => chooseQuestion(item.id, item.question)}>{item.question}</ListGroup.Item>
+                    <ListGroup.Item key={i} onClick={() => chooseQuestion(item.id, item.question)} variant={item.userId==userId ? "primary" : ""}>{item.question}</ListGroup.Item>
                   ))
                 }
                 {signedIn &&
@@ -434,7 +514,7 @@ function App() {
               <ListGroup>
                 {
                   reviews.map((item, i) => (
-                    <ListGroup.Item key={i}>{item.rating}/10: {item.review}</ListGroup.Item>
+                    <ListGroup.Item key={i} onClick={() => changeReview(item)} variant={item.userID==userId ? "primary" : ""}>{item.rating}/10: {item.review}</ListGroup.Item>
                   ))
                 }
                 {signedIn &&
@@ -529,7 +609,7 @@ function App() {
         <Modal.Body>
           {
             answers.map((item, i) => (
-              <ListGroup.Item key={i}>{item.answer}</ListGroup.Item>
+              <ListGroup.Item key={i} onClick={() => changeAnswer(item)} variant={item.userId==userId ? "primary" : ""}>{item.answer}</ListGroup.Item>
             ))
           }
           {signedIn &&
@@ -592,7 +672,7 @@ function App() {
       {/* I was Here */}
       <Modal show={showVisit} onHide={handleCloseShowVisit}>
         <Modal.Header closeButton>
-          <Modal.Title>Login</Modal.Title>
+          <Modal.Title>Add a Visit</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <Form onSubmit={visit}>
@@ -612,6 +692,33 @@ function App() {
             </Button>
             <Button variant="secondary" onClick={handleCloseShowVisit}>
               Cancel
+            </Button>
+          </Form>
+        </Modal.Body>
+      </Modal>
+
+      {/* Edit/Delete a Review/Answer */}
+      <Modal show={showEdit} onHide={handleCloseEdit}>
+        <Modal.Header closeButton>
+          <Modal.Title>Editing {isReview ? "Review" : "Answer"}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            {isReview && 
+              <Form.Group controlId="rating">
+                <Form.Label>Rating</Form.Label>
+                <Form.Control type="text" value={editRating} onChange={(e) => setEditRating(e.target.value)}/>
+              </Form.Group>
+            }
+            <Form.Group controlId="body">
+              <Form.Label>{isReview ? "Review" : "Answer"}</Form.Label>
+              <Form.Control type="textarea" rows={3} value={editText} onChange={(e) => setEditText(e.target.value)}/>
+            </Form.Group>
+            <Button variant="primary" className="submitForm" onClick={edit}>
+              Edit
+            </Button>
+            <Button variant="danger" onClick={remove}>
+              Delete
             </Button>
           </Form>
         </Modal.Body>

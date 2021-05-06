@@ -211,14 +211,6 @@ def getTableNames():
     result_dict = {'results': results}
     return jsonify(result_dict)
 
-@app.route('/delete', methods=['DELETE'])
-def delete():
-    data = request.get_json()
-    table = data['table']
-    id = data['data']['id']
-    dbase.delete(table, id)
-    return "200"
-
 @app.route('/search', methods=['GET'])
 def search():
     table = request.args.get('table')
@@ -526,3 +518,32 @@ def getLocationStatistics():
     results = [dict(row) for row in query_results]
     result_dict = {'results': results}
     return jsonify(result_dict)
+
+@app.route('/delete', methods=['DELETE'])
+def delete():
+    dataJSON = request.get_json()
+    table = str(dataJSON['table'])
+    _id = dataJSON['id']
+    username = str(dataJSON['username'])
+    password = str(dataJSON['password'])
+    userId = dataJSON['userId']
+    if(dbase.checkUser(userId, username, password)):
+        return dict({"isSuccessful": 0})
+    dbase.delete(table, _id, userId)
+    return dict({"isSuccessful": 1})
+
+@app.route('/update', methods=['POST'])
+def update():
+    dataJSON = request.get_json()
+    username = str(dataJSON['username'])
+    password = str(dataJSON['password'])
+    userId = dataJSON['userId']
+    _id = dataJSON['id']
+    if(dbase.checkUser(userId, username, password)):
+        return dict({"isSuccessful": 0})
+
+    table = str(dataJSON['table'])
+    text = str(dataJSON['text'])
+    rating = dataJSON.get('rating', "invalid")
+    dbase.update(table, int(_id), text, userId, rating)
+    return dict({"isSuccessful": 1})
